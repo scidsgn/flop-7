@@ -1,11 +1,42 @@
 import { FlopCard, FlopNumberCard } from "./cards"
 
+const fullDeck: FlopCard[] = []
+
+fullDeck.push({ type: "number", value: 0 })
+for (let i = 1; i <= 12; i++) {
+    for (let j = 0; j < i; j++) {
+        fullDeck.push({
+            type: "number",
+            value: i as FlopNumberCard["value"],
+        })
+    }
+}
+
+for (let i = 1; i <= 3; i++) {
+    fullDeck.push({ type: "freeze" })
+    fullDeck.push({ type: "flopThree" })
+    fullDeck.push({ type: "secondChance" })
+}
+
+fullDeck.push({ type: "addModifier", add: 2 })
+fullDeck.push({ type: "addModifier", add: 4 })
+fullDeck.push({ type: "addModifier", add: 6 })
+fullDeck.push({ type: "addModifier", add: 8 })
+fullDeck.push({ type: "addModifier", add: 10 })
+fullDeck.push({ type: "multiplyModifier", multiplier: 2 })
+
+export const fullDeckSize = fullDeck.length
+
 export class Deck {
     #debugQueue: FlopCard[] = []
     #cards: FlopCard[] = []
 
     constructor() {
-        this.replenish()
+        this.reshuffle()
+    }
+
+    get remainingCards() {
+        return this.#cards.length + this.#debugQueue.length
     }
 
     pushDebug(card: FlopCard) {
@@ -19,7 +50,7 @@ export class Deck {
         }
 
         if (this.#cards.length === 0) {
-            this.replenish()
+            this.reshuffle()
         }
 
         const index = Math.floor(Math.random() * this.#cards.length)
@@ -30,28 +61,7 @@ export class Deck {
         return card
     }
 
-    replenish() {
-        this.#cards.push({ type: "number", value: 0 })
-        for (let i = 1; i <= 12; i++) {
-            for (let j = 0; j < i; j++) {
-                this.#cards.push({
-                    type: "number",
-                    value: i as FlopNumberCard["value"],
-                })
-            }
-        }
-
-        for (let i = 1; i <= 3; i++) {
-            this.#cards.push({ type: "freeze" })
-            this.#cards.push({ type: "flopThree" })
-            this.#cards.push({ type: "secondChance" })
-        }
-
-        this.#cards.push({ type: "addModifier", add: 2 })
-        this.#cards.push({ type: "addModifier", add: 4 })
-        this.#cards.push({ type: "addModifier", add: 6 })
-        this.#cards.push({ type: "addModifier", add: 8 })
-        this.#cards.push({ type: "addModifier", add: 10 })
-        this.#cards.push({ type: "multiplyModifier", multiplier: 2 })
+    reshuffle() {
+        this.#cards = [...fullDeck]
     }
 }

@@ -1,32 +1,42 @@
 import { FlopCard, FlopNumberCard, countCardScore, printCards } from "./cards"
-import { Deck } from "./deck"
+import { Deck, fullDeckSize } from "./deck"
+import { Player } from "./player"
 import { closeReadline, question } from "./question"
 
-type Player = {
-    name: string
+type GamePlayer = {
+    player: Player
     cards: FlopCard[]
     flopThreeCounter: number
     scoreSoFar: number
     state: "active" | "busted" | "frozen" | "stayed" | "won"
 }
 
-const players: Player[] = [
+const players: GamePlayer[] = [
     {
-        name: "gordon freeman",
+        player: {
+            id: "p1",
+            name: "gordon freeman",
+        },
         cards: [],
         flopThreeCounter: 0,
         scoreSoFar: 0,
         state: "active",
     },
     {
-        name: "glados",
+        player: {
+            id: "p2",
+            name: "glados",
+        },
         cards: [],
         flopThreeCounter: 0,
         scoreSoFar: 0,
         state: "active",
     },
     {
-        name: "option 3",
+        player: {
+            id: "p3",
+            name: "option 3",
+        },
         cards: [],
         flopThreeCounter: 0,
         scoreSoFar: 0,
@@ -45,7 +55,7 @@ function summarizeRound() {
         const points =
             player.state === "busted" ? 0 : countCardScore(player.cards)
 
-        console.log(`${player.name}: ${points} pts`)
+        console.log(`${player.player.name}: ${points} pts`)
     }
 
     console.log(
@@ -64,7 +74,7 @@ async function addToHand(card: FlopCard) {
     ).length
     if (numberCardsCount >= 7) {
         player.state = "won"
-        console.log(`${player.name} flopped 7!`)
+        console.log(`${player.player.name} flopped 7!`)
 
         summarizeRound()
         return
@@ -192,14 +202,16 @@ async function flopThree() {
 
     const activePlayerNames = players
         .filter((p) => p.state === "active")
-        .map((p) => p.name)
+        .map((p) => p.player.name)
     const selectedName = await question(
-        `Which player to flop 3 to, ${player.name}?`,
+        `Which player to flop 3 to, ${player.player.name}?`,
         activePlayerNames,
     )
 
-    if (selectedName !== player.name) {
-        const selectedPlayer = players.find((p) => p.name === selectedName)
+    if (selectedName !== player.player.name) {
+        const selectedPlayer = players.find(
+            (p) => p.player.name === selectedName,
+        )
         if (!selectedPlayer) {
             console.log("what?? try again")
             await flopThree()
@@ -225,7 +237,7 @@ async function freeze() {
     const freezablePlayerNames = players
         .filter((p) => p !== player)
         .filter((p) => p.state === "active")
-        .map((p) => p.name)
+        .map((p) => p.player.name)
 
     if (freezablePlayerNames.length === 0) {
         const points = countCardScore(player.cards)
@@ -240,10 +252,10 @@ async function freeze() {
     }
 
     const selectedName = await question(
-        `Which player to freeze, ${player.name}?`,
+        `Which player to freeze, ${player.player.name}?`,
         freezablePlayerNames,
     )
-    const selectedPlayer = players.find((p) => p.name === selectedName)
+    const selectedPlayer = players.find((p) => p.player.name === selectedName)
     if (!selectedPlayer) {
         console.log("what?? try again")
         await freeze()
@@ -251,16 +263,26 @@ async function freeze() {
     }
 
     selectedPlayer.state = "frozen"
-    console.log(`${selectedPlayer.name}, you have been FROZEN!`)
+    console.log(`${selectedPlayer.player.name}, you have been FROZEN!`)
     console.log(
-        `${selectedPlayer.name}, you got ${countCardScore(selectedPlayer.cards)} points!`,
+        `${selectedPlayer.player.name}, you got ${countCardScore(selectedPlayer.cards)} points!`,
     )
 
     await performRemainingActions()
 }
 
+function reshuffleDeck() {
+    console.log("Deck reshuffled!")
+    deck.reshuffle()
+}
+
 async function hit() {
     const player = players[currentPlayerIndex]
+
+    if (deck.remainingCards === 0) {
+        reshuffleDeck()
+    }
+
     const card = deck.grab()
     console.log("You grabbed:")
     printCards([card])
@@ -339,7 +361,10 @@ async function debug() {
 async function startTurn() {
     const player = players[currentPlayerIndex]
     console.log(`\n====================================================\n`)
-    console.log(`Now it's ${player.name}'s turn.`)
+    console.log(`Now it's ${player.player.name}'s turn.`)
+    console.log(
+        `${deck.remainingCards} cards remaining in the deck out of ${fullDeckSize}`,
+    )
     console.log(`Your cards (${countCardScore(player.cards)} pts):`)
     printCards(player.cards)
 
