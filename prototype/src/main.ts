@@ -1,7 +1,7 @@
 import { FlopCard, FlopNumberCard, countCardScore, printCards } from "./cards"
 import { Deck, fullDeckSize } from "./deck"
 import { Player } from "./player"
-import { closeReadline, question } from "./question"
+import { PlayerDecisionsManager } from "./player-decisions/player-decisions-manager"
 
 type GamePlayer = {
     player: Player
@@ -47,6 +47,8 @@ let currentPlayerIndex = 0
 const flopThreePlayerIndexQueue: number[] = []
 
 const deck = new Deck()
+
+const playerDecisions = new PlayerDecisionsManager()
 
 function summarizeRound() {
     console.log(`\n====================================================\n`)
@@ -200,17 +202,17 @@ async function bust() {
 async function flopThree() {
     const player = players[currentPlayerIndex]
 
-    const activePlayerNames = players
+    const activePlayers = players
         .filter((p) => p.state === "active")
-        .map((p) => p.player.name)
-    const selectedName = await question(
-        `Which player to flop 3 to, ${player.player.name}?`,
-        activePlayerNames,
-    )
+        .map((p) => p.player)
+    const selection = await playerDecisions.requestFlop3Player({
+        type: "flop_3_player",
+        players: activePlayers,
+    })
 
-    if (selectedName !== player.player.name) {
+    if (selection.selectedPlayerId !== player.player.id) {
         const selectedPlayer = players.find(
-            (p) => p.player.name === selectedName,
+            (p) => p.player.id === selection.selectedPlayerId,
         )
         if (!selectedPlayer) {
             console.log("what?? try again")
@@ -234,12 +236,12 @@ async function freeze() {
     const player = players[currentPlayerIndex]
 
     // TODO should the player be allowed to freeze themselves if there are other options?
-    const freezablePlayerNames = players
+    const freezablePlayers = players
         .filter((p) => p !== player)
         .filter((p) => p.state === "active")
-        .map((p) => p.player.name)
+        .map((p) => p.player)
 
-    if (freezablePlayerNames.length === 0) {
+    if (freezablePlayers.length === 0) {
         const points = countCardScore(player.cards)
         console.log("No one left to freeze, so that's it for you!")
         console.log(`You got ${points} points!`)
@@ -251,11 +253,13 @@ async function freeze() {
         return
     }
 
-    const selectedName = await question(
-        `Which player to freeze, ${player.player.name}?`,
-        freezablePlayerNames,
+    const selection = await playerDecisions.requestFreeze({
+        type: "freeze_player",
+        players: freezablePlayers,
+    })
+    const selectedPlayer = players.find(
+        (p) => p.player.id === selection.selectedPlayerId,
     )
-    const selectedPlayer = players.find((p) => p.player.name === selectedName)
     if (!selectedPlayer) {
         console.log("what?? try again")
         await freeze()
@@ -321,7 +325,10 @@ async function hit() {
 
 async function hitMoreDuringFlop3() {
     const player = players[currentPlayerIndex]
-    await question(`Hit? (${player.flopThreeCounter} remaining) `, ["hit"])
+    await playerDecisions.requestFlop3Hit({
+        type: "flop_3_hit",
+        hitsRemaining: player.flopThreeCounter,
+    })
 
     await hit()
 }
@@ -336,28 +343,6 @@ async function stay() {
     await goToNextPlayerIsh()
 }
 
-async function debug() {
-    console.log("sneaky...\n")
-
-    const chosenCard = await question(
-        "Select which card to put on top of deck",
-        ["number", "freeze", "flopThree", "secondChance"],
-    )
-
-    if (chosenCard === "number") {
-        const chosenValue = await question("Value?", ["0", "1", "2", "3", "4"])
-
-        deck.pushDebug({
-            type: "number",
-            value: +chosenValue,
-        } as FlopNumberCard)
-    } else {
-        deck.pushDebug({ type: chosenCard })
-    }
-
-    await startTurn()
-}
-
 async function startTurn() {
     const player = players[currentPlayerIndex]
     console.log(`\n====================================================\n`)
@@ -368,11 +353,11 @@ async function startTurn() {
     console.log(`Your cards (${countCardScore(player.cards)} pts):`)
     printCards(player.cards)
 
-    const hitOrStay = await question("Hit or stay?", ["hit", "stay", "debug"])
-    if (hitOrStay === "hit") {
+    const decision = await playerDecisions.requestHitOrStay({
+        type: "hit_or_stay",
+    })
+    if (decision.decision === "hit") {
         await hit()
-    } else if (hitOrStay === "debug") {
-        await debug()
     } else {
         await stay()
     }
@@ -381,7 +366,7 @@ async function startTurn() {
 async function main() {
     await startTurn()
 
-    closeReadline()
+    playerDecisions.close()
 }
 
 main()

@@ -28,7 +28,6 @@ fullDeck.push({ type: "multiplyModifier", multiplier: 2 })
 export const fullDeckSize = fullDeck.length
 
 export class Deck {
-    #debugQueue: FlopCard[] = []
     #cards: FlopCard[] = []
 
     constructor() {
@@ -36,19 +35,10 @@ export class Deck {
     }
 
     get remainingCards() {
-        return this.#cards.length + this.#debugQueue.length
-    }
-
-    pushDebug(card: FlopCard) {
-        this.#debugQueue.push(card)
+        return this.#cards.length
     }
 
     grab() {
-        const debugCard = this.#debugQueue.shift()
-        if (debugCard) {
-            return debugCard
-        }
-
         if (this.#cards.length === 0) {
             this.reshuffle()
         }
