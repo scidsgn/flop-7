@@ -150,7 +150,7 @@ export class GameRoundFlow {
         const activePlayers = this.#round.activePlayers
         if (activePlayers.length === 0) {
             // Freeze player
-            this.#round.freezePlayer(this.#round.currentPlayer.player.id)
+            this.#round.freezePlayer(this.#round.currentPlayer)
 
             await this.finishRound()
             return
@@ -160,11 +160,12 @@ export class GameRoundFlow {
             type: "freeze_player",
             players: activePlayers.map((player) => player.player),
         })
-        this.#round.freezePlayer(selection.selectedPlayerId)
+        const selectedPlayer = activePlayers.find(
+            (player) => player.player.id === selection.selectedPlayerId,
+        )
+        this.#round.freezePlayer(selectedPlayer)
 
-        if (
-            selection.selectedPlayerId === this.#round.currentPlayer.player.id
-        ) {
+        if (selectedPlayer === this.#round.currentPlayer) {
             await this.nextPlayer()
             return
         }
@@ -179,14 +180,15 @@ export class GameRoundFlow {
             type: "flop_3_player",
             players: activePlayers.map((player) => player.player),
         })
-        if (
-            selection.selectedPlayerId === this.#round.currentPlayer.player.id
-        ) {
+        const selectedPlayer = activePlayers.find(
+            (player) => player.player.id === selection.selectedPlayerId,
+        )
+        if (selectedPlayer === this.#round.currentPlayer) {
             this.#round.startFlopThreeForCurrentPlayer()
 
             await this.hitMoreDuringFlop3()
         } else {
-            this.#round.startFlopThreeForPlayer(selection.selectedPlayerId)
+            this.#round.startFlopThreeForPlayer(selectedPlayer)
 
             await this.hitMoreDuringFlop3()
         }
@@ -205,7 +207,7 @@ export class GameRoundFlow {
                 continue
             }
 
-            this.#round.setCurrentPlayer(player.player.id)
+            this.#round.setCurrentPlayer(player)
             await this.performRemainingActions()
             return
         }
@@ -228,7 +230,7 @@ export class GameRoundFlow {
             return
         }
 
-        this.#round.setCurrentPlayer(nextPlayer.player.id)
+        this.#round.setCurrentPlayer(nextPlayer)
         await this.startTurn()
     }
 

@@ -61,17 +61,6 @@ export class Round {
         return this.#flopThreePlayerQueue.length === 0
     }
 
-    getPlayer(playerId: string) {
-        const player = this.#players.find(
-            (player) => player.player.id === playerId,
-        )
-        if (!player) {
-            throw new Error(`Player not found: ${playerId}`)
-        }
-
-        return player
-    }
-
     addCardToCurrentPlayer(card: FlopCard) {
         const player = this.currentPlayer
 
@@ -116,8 +105,8 @@ export class Round {
         })
     }
 
-    freezePlayer(playerId: string) {
-        const player = this.getPlayer(playerId)
+    freezePlayer(player: RoundPlayer) {
+        this.#ensureHasPlayer(player)
 
         player.freeze()
 
@@ -138,8 +127,8 @@ export class Round {
         })
     }
 
-    startFlopThreeForPlayer(playerId: string) {
-        const player = this.getPlayer(playerId)
+    startFlopThreeForPlayer(player: RoundPlayer) {
+        this.#ensureHasPlayer(player)
 
         this.#flopThreePlayerQueue.push(this.currentPlayer)
 
@@ -157,8 +146,8 @@ export class Round {
         })
     }
 
-    setCurrentPlayer(playerId: string) {
-        const player = this.getPlayer(playerId)
+    setCurrentPlayer(player: RoundPlayer) {
+        this.#ensureHasPlayer(player)
 
         this.#currentPlayer = player
 
@@ -196,6 +185,12 @@ export class Round {
             type: "roundPlayerDecreaseFTCounterUpdate",
             ...this.#oldEventFromPlayer(player),
         })
+    }
+
+    #ensureHasPlayer(player: RoundPlayer) {
+        if (!this.#players.includes(player)) {
+            throw new Error(`Player ${player.player.id} not present in round`)
+        }
     }
 
     #oldEventFromPlayer(
