@@ -102,6 +102,7 @@ export class GameRoundFlow {
         ).length
         if (numberCardsCount >= 7) {
             this.#round.markPlayerWon()
+            await this.finishRound()
             return
         }
 
@@ -154,8 +155,6 @@ export class GameRoundFlow {
             this.#round.freezePlayer(this.#round.state.currentPlayerId)
 
             await this.finishRound()
-
-            // END
             return
         }
 
