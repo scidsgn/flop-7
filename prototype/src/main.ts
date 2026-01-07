@@ -1,8 +1,8 @@
 import { Game } from "./game"
 import { GameRoundFlow } from "./game-round-flow"
-import { PlayerDecisionsManager } from "./player-decisions/player-decisions-manager"
+import { PlayerRequests } from "./player-requests"
 
-const playerDecisions = new PlayerDecisionsManager()
+const playerRequests = new PlayerRequests()
 const game = new Game(
     [
         {
@@ -14,7 +14,7 @@ const game = new Game(
             name: "Gordon Freeman",
         },
     ],
-    playerDecisions,
+    playerRequests,
 )
 
 game.deck.updateStream.forEach((update) =>
@@ -31,7 +31,7 @@ const main = async () => {
 
     await flow.startTurn()
 
-    playerDecisions.close()
+    playerRequests.close()
 }
 
 main()

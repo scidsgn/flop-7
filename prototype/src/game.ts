@@ -1,5 +1,5 @@
 import { Deck } from "./deck"
-import { PlayerDecisionsManager } from "./player-decisions/player-decisions-manager"
+import { PlayerRequests } from "./player-requests"
 import { Round } from "./round"
 
 type GamePlayer = {
@@ -13,14 +13,11 @@ export class Game {
     #deck: Deck = new Deck()
     #rounds: Round[] = []
 
-    #playerDecisions: PlayerDecisionsManager
+    #playerRequests = new PlayerRequests()
 
-    constructor(
-        players: GamePlayer[],
-        playerDecisions: PlayerDecisionsManager,
-    ) {
+    constructor(players: GamePlayer[], playerRequests: PlayerRequests) {
         this.#players = players
-        this.#playerDecisions = playerDecisions
+        this.#playerRequests = playerRequests
 
         this.startRound()
     }
@@ -37,8 +34,8 @@ export class Game {
         return this.#players
     }
 
-    get playerDecisions() {
-        return this.#playerDecisions
+    get playerRequests() {
+        return this.#playerRequests
     }
 
     startRound() {

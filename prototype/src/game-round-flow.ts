@@ -12,10 +12,12 @@ export class GameRoundFlow {
     }
 
     async startTurn() {
-        const decision = await this.#game.playerDecisions.requestHitOrStay({
-            type: "hit_or_stay",
-        })
-        if (decision.decision === "hit") {
+        const decision = await this.#game.playerRequests.requestChoice(
+            this.#round.currentPlayer,
+            "startTurnHitOrStay",
+            ["hit", "stay"],
+        )
+        if (decision === "hit") {
             await this.hit()
         } else {
             await this.stay()
@@ -86,10 +88,11 @@ export class GameRoundFlow {
     }
 
     async hitMoreDuringFlop3() {
-        await this.#game.playerDecisions.requestFlop3Hit({
-            type: "flop_3_hit",
-            hitsRemaining: this.#round.currentPlayer.flopThreeCounter,
-        })
+        await this.#game.playerRequests.requestChoice(
+            this.#round.currentPlayer,
+            "flopThreeHit",
+            ["hit"],
+        )
 
         await this.hit()
     }
@@ -156,15 +159,12 @@ export class GameRoundFlow {
             return
         }
 
-        const selection = await this.#game.playerDecisions.requestFreeze({
-            type: "freeze_player",
-            players: activePlayers.map((player) => player.player),
-        })
-        const selectedPlayer = activePlayers.find(
-            (player) => player.player.id === selection.selectedPlayerId,
-        )
-        this.#round.freezePlayer(selectedPlayer)
-
+        const selectedPlayer =
+            await this.#game.playerRequests.requestPlayerSelection(
+                this.#round.currentPlayer,
+                "freeze",
+                activePlayers,
+            )
         if (selectedPlayer === this.#round.currentPlayer) {
             await this.nextPlayer()
             return
@@ -176,13 +176,12 @@ export class GameRoundFlow {
     async flopThree() {
         const activePlayers = this.#round.activePlayers
 
-        const selection = await this.#game.playerDecisions.requestFlop3Player({
-            type: "flop_3_player",
-            players: activePlayers.map((player) => player.player),
-        })
-        const selectedPlayer = activePlayers.find(
-            (player) => player.player.id === selection.selectedPlayerId,
-        )
+        const selectedPlayer =
+            await this.#game.playerRequests.requestPlayerSelection(
+                this.#round.currentPlayer,
+                "flopThree",
+                activePlayers,
+            )
         if (selectedPlayer === this.#round.currentPlayer) {
             this.#round.startFlopThreeForCurrentPlayer()
 
