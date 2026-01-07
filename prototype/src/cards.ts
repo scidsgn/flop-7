@@ -57,31 +57,3 @@ export function countCardScore(cards: FlopCard[]) {
 
     return sum
 }
-
-function cardImage(card: FlopCard) {
-    switch (card.type) {
-        case "number":
-            return ` --- \n|   |\n| ${card.value.toString().padEnd(2, " ")}|\n|   |\n --- `
-        case "addModifier":
-            return ` --- \n|   |\n|+${card.add.toString().padEnd(2, " ")}|\n|   |\n --- `
-        case "multiplyModifier":
-            return ` --- \n|   |\n|x${card.multiplier.toString().padEnd(2, " ")}|\n|   |\n --- `
-        case "freeze":
-            return ` --- \n|FRE|\n|///|\n|EZE|\n --- `
-        case "flopThree":
-            return ` --- \n|FLO|\n|P3P|\n|OLF|\n --- `
-        case "secondChance":
-            return ` --- \n|2nd|\n|<<3|\n|2nd|\n --- `
-        default:
-            return ` --- \n|***|\n|***|\n|***|\n --- `
-    }
-}
-
-export function printCards(cards: FlopCard[]) {
-    const imageLines = cards.map((card) => cardImage(card).split("\n"))
-
-    for (let line = 0; line < 5; line++) {
-        const row = imageLines.map((lines) => lines[line]).join("  ")
-        console.log(row)
-    }
-}

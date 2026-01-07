@@ -25,6 +25,7 @@
         "typescript-eslint": "^8.50.1"
     },
     "dependencies": {
+        "@scidsgn/std": "^0.1.0",
         "mutative": "^1.3.0",
         "tsx": "^4.21.0",
         "zod": "^4.2.1"

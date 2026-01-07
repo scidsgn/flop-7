@@ -1,3 +1,5 @@
+import { Emitter } from "@scidsgn/std"
+
 import { FlopCard, FlopNumberCard } from "./cards"
 
 const fullDeck: FlopCard[] = []
@@ -27,20 +29,32 @@ fullDeck.push({ type: "multiplyModifier", multiplier: 2 })
 
 export const fullDeckSize = fullDeck.length
 
-export class Deck {
-    #cards: FlopCard[] = []
+type DeckGrabUpdate = {
+    type: "deckGrabUpdate"
+    remainingCards: number
+    totalCards: number
+    card: FlopCard
+}
 
-    constructor() {
-        this.reshuffle()
+export class Deck {
+    #cards: FlopCard[] = [...fullDeck]
+
+    #emitter = new Emitter<DeckGrabUpdate>()
+
+    get state() {
+        return {
+            remainingCards: this.#cards.length,
+            totalCards: fullDeckSize,
+        }
     }
 
-    get remainingCards() {
-        return this.#cards.length
+    get updateStream() {
+        return this.#emitter.asyncStream()
     }
 
     grab() {
         if (this.#cards.length === 0) {
-            this.reshuffle()
+            this.#cards = [...fullDeck]
         }
 
         const index = Math.floor(Math.random() * this.#cards.length)
@@ -48,10 +62,12 @@ export class Deck {
 
         this.#cards.splice(index, 1)
 
-        return card
-    }
+        this.#emitter.emit({
+            type: "deckGrabUpdate",
+            ...this.state,
+            card,
+        })
 
-    reshuffle() {
-        this.#cards = [...fullDeck]
+        return card
     }
 }
