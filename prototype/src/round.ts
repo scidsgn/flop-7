@@ -1,19 +1,14 @@
 import { Emitter } from "@scidsgn/std"
 
-import { FlopCard, countCardScore } from "./cards"
+import { FlopCard } from "./cards"
+import { Game } from "./game"
+import { RoundPlayer } from "./round-player"
 
 type RoundPlayerState = {
     cards: FlopCard[]
     flopThreeCounter: number
     score: number
     state: "active" | "busted" | "frozen" | "stayed" | "won"
-}
-
-type RoundState = {
-    playerStates: Record<string, RoundPlayerState>
-    currentPlayerId: string
-    playerOrder: string[]
-    flopThreePlayerQueue: string[]
 }
 
 type RoundPlayerUpdate<TType> = {
@@ -34,188 +29,186 @@ export type RoundUpdate =
     | RoundPlayerUpdate<"roundPlayerDecreaseFTCounterUpdate">
 
 export class Round {
-    #state: RoundState
+    #players: RoundPlayer[]
+    #currentPlayer: RoundPlayer
+    #flopThreePlayerQueue: RoundPlayer[] = []
 
     #emitter = new Emitter<RoundUpdate>()
 
-    constructor(initialState: RoundState) {
-        this.#state = initialState
-    }
-
-    get state() {
-        return this.#state
+    constructor(game: Game) {
+        this.#players = game.players.map((player) => new RoundPlayer(player))
+        // TODO ew
+        this.#currentPlayer = this.#players[0]
     }
 
     get updateStream() {
         return this.#emitter.asyncStream()
     }
 
-    get currentPlayerState() {
-        return this.#state.playerStates[this.#state.currentPlayerId]
+    get players() {
+        return this.#players
     }
 
-    addCardToHand(card: FlopCard) {
-        const playerState =
-            this.#state.playerStates[this.#state.currentPlayerId]
+    get activePlayers() {
+        return this.#players.filter((player) => player.state === "active")
+    }
 
-        playerState.cards.push(card)
-        playerState.score = countCardScore(playerState.cards)
+    get currentPlayer() {
+        return this.#currentPlayer
+    }
+
+    get isFlopThreeQueueEmpty() {
+        return this.#flopThreePlayerQueue.length === 0
+    }
+
+    getPlayer(playerId: string) {
+        const player = this.#players.find(
+            (player) => player.player.id === playerId,
+        )
+        if (!player) {
+            throw new Error(`Player not found: ${playerId}`)
+        }
+
+        return player
+    }
+
+    addCardToCurrentPlayer(card: FlopCard) {
+        const player = this.currentPlayer
+
+        player.pushCard(card)
 
         this.#emitter.emit({
             type: "roundAddCardToPlayerUpdate",
-            playerId: this.#state.currentPlayerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
     }
 
-    markPlayerWon() {
-        const playerState =
-            this.#state.playerStates[this.#state.currentPlayerId]
+    markCurrentPlayerWon() {
+        const player = this.currentPlayer
 
-        playerState.state = "won"
+        player.win()
 
         this.#emitter.emit({
             type: "roundPlayerWonUpdate",
-            playerId: this.#state.currentPlayerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
     }
 
-    markPlayerBusted() {
-        const playerState =
-            this.#state.playerStates[this.#state.currentPlayerId]
+    markCurrentPlayerBusted() {
+        const player = this.currentPlayer
 
-        playerState.state = "busted"
-        playerState.score = 0
+        player.bust()
 
         this.#emitter.emit({
             type: "roundPlayerBustedUpdate",
-            playerId: this.#state.currentPlayerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
     }
 
-    markPlayerStayed() {
-        const playerState =
-            this.#state.playerStates[this.#state.currentPlayerId]
+    markCurrentPlayerStayed() {
+        const player = this.currentPlayer
 
-        playerState.state = "stayed"
+        player.stay()
 
         this.#emitter.emit({
             type: "roundPlayerStayedUpdate",
-            playerId: this.#state.currentPlayerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
     }
 
     freezePlayer(playerId: string) {
-        const playerState = this.#state.playerStates[playerId]
-        if (!playerState) {
-            throw new Error(`Player not found: ${playerId}`)
-        }
+        const player = this.getPlayer(playerId)
 
-        playerState.state = "frozen"
+        player.freeze()
 
         this.#emitter.emit({
             type: "roundPlayerFrozenUpdate",
-            playerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
     }
 
-    startFlopThree() {
-        const playerState =
-            this.#state.playerStates[this.#state.currentPlayerId]
+    startFlopThreeForCurrentPlayer() {
+        const player = this.currentPlayer
 
-        playerState.flopThreeCounter = 3
+        player.bumpFlopThreeCounter()
 
         this.#emitter.emit({
             type: "roundPlayerFlopThreeStarted",
-            playerId: this.#state.currentPlayerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
     }
 
-    startPlayerFlopThree(playerId: string) {
-        const playerState = this.#state.playerStates[playerId]
-        if (!playerState) {
-            throw new Error(`Player not found: ${playerId}`)
-        }
+    startFlopThreeForPlayer(playerId: string) {
+        const player = this.getPlayer(playerId)
 
-        this.#state.flopThreePlayerQueue.push(this.#state.currentPlayerId)
+        this.#flopThreePlayerQueue.push(this.currentPlayer)
 
-        playerState.flopThreeCounter = 3
-        this.#state.currentPlayerId = playerId
+        player.bumpFlopThreeCounter()
+        this.#currentPlayer = player
 
         this.#emitter.emit({
             type: "roundPlayerChangeUpdate",
-            playerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
 
         this.#emitter.emit({
             type: "roundPlayerFlopThreeStarted",
-            playerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
     }
 
-    changePlayer(playerId: string) {
-        const playerState = this.#state.playerStates[playerId]
-        if (!playerState) {
-            throw new Error(`Player not found: ${playerId}`)
-        }
+    setCurrentPlayer(playerId: string) {
+        const player = this.getPlayer(playerId)
 
-        this.#state.currentPlayerId = playerId
+        this.#currentPlayer = player
 
         this.#emitter.emit({
             type: "roundPlayerChangeUpdate",
-            playerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
     }
 
     shiftFlopThreePlayerQueue() {
-        const playerId = this.#state.flopThreePlayerQueue.shift()
-        const playerState = this.#state.playerStates[playerId]
-        if (!playerState) {
-            throw new Error(`Player not found: ${playerId}`)
-        }
-
-        return { playerId, playerState }
+        return this.#flopThreePlayerQueue.shift()
     }
 
-    applyCard(card: FlopCard) {
-        const playerState =
-            this.#state.playerStates[this.#state.currentPlayerId]
-        const cardIndex = playerState.cards.indexOf(card)
+    discardCardFromCurrentPlayer(card: FlopCard) {
+        const player = this.#currentPlayer
 
-        if (cardIndex >= 0) {
-            playerState.cards.splice(cardIndex, 1)
-        }
+        player.discardCard(card)
 
         this.#emitter.emit({
             type: "roundPlayerUseCardUpdate",
-            playerId: this.#state.currentPlayerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
             card,
         })
     }
 
     decreaseFlopThreeCounter() {
-        const playerState =
-            this.#state.playerStates[this.#state.currentPlayerId]
-
-        if (playerState.flopThreeCounter <= 0) {
+        const player = this.#currentPlayer
+        if (player.flopThreeCounter === 0) {
             return
         }
 
-        playerState.flopThreeCounter -= 1
+        player.decrementFlopThreeCounter()
 
         this.#emitter.emit({
             type: "roundPlayerDecreaseFTCounterUpdate",
-            playerId: this.#state.currentPlayerId,
-            playerState,
+            ...this.#oldEventFromPlayer(player),
         })
+    }
+
+    #oldEventFromPlayer(
+        player: RoundPlayer,
+    ): Omit<RoundPlayerUpdate<string>, "type"> {
+        return {
+            playerId: player.player.id,
+            playerState: {
+                cards: player.cards,
+                state: player.state,
+                score: player.score,
+                flopThreeCounter: player.flopThreeCounter,
+            },
+        }
     }
 }

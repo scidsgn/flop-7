@@ -42,22 +42,7 @@ export class Game {
     }
 
     startRound() {
-        const round = new Round({
-            playerStates: Object.fromEntries(
-                this.#players.map((player) => [
-                    player.id,
-                    {
-                        cards: [],
-                        flopThreeCounter: 0,
-                        score: 0,
-                        state: "active",
-                    },
-                ]),
-            ),
-            currentPlayerId: this.#players[0].id, // TODO ew
-            playerOrder: this.#players.map((player) => player.id),
-            flopThreePlayerQueue: [],
-        })
+        const round = new Round(this)
         this.#rounds.push(round)
 
         return round
