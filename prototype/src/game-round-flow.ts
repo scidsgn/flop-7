@@ -166,6 +166,11 @@ export class GameRoundFlow {
                 activePlayers,
             )
         if (selectedPlayer === this.#round.currentPlayer) {
+            if (activePlayers.length === 1) {
+                await this.finishRound()
+                return
+            }
+
             await this.nextPlayer()
             return
         }

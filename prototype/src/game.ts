@@ -1,4 +1,5 @@
 import { Deck } from "./deck"
+import { GameEvents } from "./game-events"
 import { PlayerRequests } from "./player-requests"
 import { Round } from "./round"
 
@@ -10,16 +11,21 @@ type GamePlayer = {
 export class Game {
     #players: GamePlayer[]
 
-    #deck: Deck = new Deck()
+    #events = new GameEvents()
+
+    #deck: Deck = new Deck(this.#events)
     #rounds: Round[] = []
 
-    #playerRequests = new PlayerRequests()
+    #playerRequests = new PlayerRequests(this.#events)
 
-    constructor(players: GamePlayer[], playerRequests: PlayerRequests) {
+    constructor(players: GamePlayer[]) {
         this.#players = players
-        this.#playerRequests = playerRequests
 
         this.startRound()
+    }
+
+    get events() {
+        return this.#events
     }
 
     get deck() {
