@@ -1,11 +1,19 @@
 import { FlopCard } from "./cards"
 import { Game } from "./game"
-import { BaseEvent, GameEvents } from "./game-events"
-import { RoundPlayer } from "./round-player"
+import { GameEvents } from "./game-events"
+import { RoundPlayer, RoundPlayerSnapshot } from "./round-player"
 
-export type RoundEvents = BaseEvent<"roundPlayerChange", { playerId: string }>
+type RoundState = "started" | "finished"
+
+export type RoundSnapshot = {
+    state: RoundState
+    players: RoundPlayerSnapshot[]
+    currentPlayerId: string
+}
 
 export class Round {
+    #state: RoundState = "started"
+
     #events: GameEvents
 
     #players: RoundPlayer[]
@@ -36,6 +44,14 @@ export class Round {
 
     get isFlopThreeQueueEmpty() {
         return this.#flopThreePlayerQueue.length === 0
+    }
+
+    get snapshot(): RoundSnapshot {
+        return {
+            state: this.#state,
+            players: this.#players.map((player) => player.snapshot),
+            currentPlayerId: this.#currentPlayer.player.id,
+        }
     }
 
     addCardToCurrentPlayer(card: FlopCard) {
@@ -84,7 +100,7 @@ export class Round {
 
         this.#events.emit({
             type: "roundPlayerChange",
-            payload: { playerId: player.player.id },
+            payload: this.snapshot,
         })
     }
 
@@ -95,7 +111,7 @@ export class Round {
 
         this.#events.emit({
             type: "roundPlayerChange",
-            payload: { playerId: player.player.id },
+            payload: this.snapshot,
         })
     }
 
@@ -119,17 +135,11 @@ export class Round {
     }
 
     finish() {
+        this.#state = "finished"
+
         this.#events.emit({
             type: "roundFinish",
-            payload: {
-                players: this.#players.map((player) => ({
-                    playerId: player.player.id,
-                    cards: player.cards,
-                    state: player.state,
-                    flopThreeCounter: player.flopThreeCounter,
-                    score: player.score,
-                })),
-            },
+            payload: this.snapshot,
         })
     }
 

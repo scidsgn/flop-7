@@ -4,7 +4,7 @@ import { Player } from "./player"
 
 type RoundPlayerState = "active" | "busted" | "frozen" | "stayed" | "won"
 
-type RoundPlayerEventData = {
+export type RoundPlayerSnapshot = {
     playerId: string
     cards: FlopCard[]
     flopThreeCounter: number
@@ -46,7 +46,7 @@ export class RoundPlayer {
         return this.#flopThreeCounter
     }
 
-    get #eventPayload(): RoundPlayerEventData {
+    get snapshot(): RoundPlayerSnapshot {
         return {
             playerId: this.#player.id,
             cards: this.#cards,
@@ -64,7 +64,7 @@ export class RoundPlayer {
 
         this.#events.emit({
             type: "playerCardAdded",
-            payload: this.#eventPayload,
+            payload: this.snapshot,
         })
     }
 
@@ -76,7 +76,7 @@ export class RoundPlayer {
 
         this.#events.emit({
             type: "playerCardDiscarded",
-            payload: { ...this.#eventPayload, card },
+            payload: { ...this.snapshot, card },
         })
     }
 
@@ -88,7 +88,7 @@ export class RoundPlayer {
 
         this.#events.emit({
             type: "playerBusted",
-            payload: this.#eventPayload,
+            payload: this.snapshot,
         })
     }
 
@@ -99,7 +99,7 @@ export class RoundPlayer {
 
         this.#events.emit({
             type: "playerFrozen",
-            payload: this.#eventPayload,
+            payload: this.snapshot,
         })
     }
 
@@ -110,7 +110,7 @@ export class RoundPlayer {
 
         this.#events.emit({
             type: "playerStayed",
-            payload: this.#eventPayload,
+            payload: this.snapshot,
         })
     }
 
@@ -121,7 +121,7 @@ export class RoundPlayer {
 
         this.#events.emit({
             type: "playerWon",
-            payload: this.#eventPayload,
+            payload: this.snapshot,
         })
     }
 
@@ -132,7 +132,7 @@ export class RoundPlayer {
 
         this.#events.emit({
             type: "playerFlopThreeStarted",
-            payload: this.#eventPayload,
+            payload: this.snapshot,
         })
     }
 
@@ -147,7 +147,7 @@ export class RoundPlayer {
 
         this.#events.emit({
             type: "playerFlopThreeCounterDecreased",
-            payload: this.#eventPayload,
+            payload: this.snapshot,
         })
     }
 

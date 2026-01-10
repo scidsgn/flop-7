@@ -1,11 +1,20 @@
 import { Deck } from "./deck"
 import { GameEvents } from "./game-events"
-import { PlayerRequests } from "./player-requests/player-requests"
-import { Round } from "./round"
+import {
+    PlayerRequest,
+    PlayerRequests,
+} from "./player-requests/player-requests"
+import { Round, RoundSnapshot } from "./round"
 
 type GamePlayer = {
     id: string
     name: string
+}
+
+type GameSnapshot = {
+    players: GamePlayer[]
+    unfulfilledRequests: PlayerRequest[]
+    rounds: RoundSnapshot[]
 }
 
 export interface GameFlow {
@@ -53,6 +62,14 @@ export class Game {
 
     get playerRequests() {
         return this.#playerRequests
+    }
+
+    get snapshot(): GameSnapshot {
+        return {
+            players: this.#players,
+            unfulfilledRequests: this.#playerRequests.unfulfilledRequests,
+            rounds: this.#rounds.map((round) => round.snapshot),
+        }
     }
 
     startRound() {

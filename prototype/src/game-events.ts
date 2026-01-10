@@ -5,41 +5,27 @@ import {
     PlayerChoiceRequest,
     PlayerSelectionRequest,
 } from "./player-requests/player-requests"
+import { RoundSnapshot } from "./round"
+import { RoundPlayerSnapshot } from "./round-player"
 
 export type BaseEvent<TType extends string, TPayload> = {
     type: TType
     payload: TPayload
 }
 
-type RoundPlayerEventData = {
-    playerId: string
-    cards: FlopCard[]
-    flopThreeCounter: number
-    score: number
-    state: "active" | "busted" | "frozen" | "stayed" | "won"
-}
-
 type RoundPlayerEvents =
-    | BaseEvent<"playerCardAdded", RoundPlayerEventData>
-    | BaseEvent<"playerWon", RoundPlayerEventData>
-    | BaseEvent<"playerFrozen", RoundPlayerEventData>
-    | BaseEvent<"playerBusted", RoundPlayerEventData>
-    | BaseEvent<"playerStayed", RoundPlayerEventData>
-    | BaseEvent<"playerFlopThreeStarted", RoundPlayerEventData>
-    | BaseEvent<"playerFlopThreeCounterDecreased", RoundPlayerEventData>
-    | BaseEvent<
-          "playerCardDiscarded",
-          RoundPlayerEventData & { card: FlopCard }
-      >
+    | BaseEvent<"playerCardAdded", RoundPlayerSnapshot>
+    | BaseEvent<"playerWon", RoundPlayerSnapshot>
+    | BaseEvent<"playerFrozen", RoundPlayerSnapshot>
+    | BaseEvent<"playerBusted", RoundPlayerSnapshot>
+    | BaseEvent<"playerStayed", RoundPlayerSnapshot>
+    | BaseEvent<"playerFlopThreeStarted", RoundPlayerSnapshot>
+    | BaseEvent<"playerFlopThreeCounterDecreased", RoundPlayerSnapshot>
+    | BaseEvent<"playerCardDiscarded", RoundPlayerSnapshot & { card: FlopCard }>
 
 type RoundEvents =
-    | BaseEvent<"roundPlayerChange", { playerId: string }>
-    | BaseEvent<
-          "roundFinish",
-          {
-              players: RoundPlayerEventData[]
-          }
-      >
+    | BaseEvent<"roundPlayerChange", RoundSnapshot>
+    | BaseEvent<"roundFinish", RoundSnapshot>
 
 type DeckEvents = BaseEvent<
     "deckCardGrabbed",
