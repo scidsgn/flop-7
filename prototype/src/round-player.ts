@@ -1,5 +1,5 @@
 import { FlopCard, countCardScore } from "./cards"
-import { BaseEvent, GameEvents } from "./game-events"
+import { GameEvents } from "./game-events"
 import { Player } from "./player"
 
 type RoundPlayerState = "active" | "busted" | "frozen" | "stayed" | "won"
@@ -11,16 +11,6 @@ type RoundPlayerEventData = {
     score: number
     state: "active" | "busted" | "frozen" | "stayed" | "won"
 }
-
-export type RoundPlayerEvents =
-    | BaseEvent<"playerCardAdded", RoundPlayerEventData>
-    | BaseEvent<"playerWon", RoundPlayerEventData>
-    | BaseEvent<"playerFrozen", RoundPlayerEventData>
-    | BaseEvent<"playerBusted", RoundPlayerEventData>
-    | BaseEvent<"playerStayed", RoundPlayerEventData>
-    | BaseEvent<"playerFlopThreeStarted", RoundPlayerEventData>
-    | BaseEvent<"playerFlopThreeCounterDecreased", RoundPlayerEventData>
-    | BaseEvent<"playerCardDiscared", RoundPlayerEventData & { card: FlopCard }>
 
 export class RoundPlayer {
     #events: GameEvents

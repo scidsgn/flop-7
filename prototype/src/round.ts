@@ -118,6 +118,21 @@ export class Round {
         player.decrementFlopThreeCounter()
     }
 
+    finish() {
+        this.#events.emit({
+            type: "roundFinish",
+            payload: {
+                players: this.#players.map((player) => ({
+                    playerId: player.player.id,
+                    cards: player.cards,
+                    state: player.state,
+                    flopThreeCounter: player.flopThreeCounter,
+                    score: player.score,
+                })),
+            },
+        })
+    }
+
     #ensureHasPlayer(player: RoundPlayer) {
         if (!this.#players.includes(player)) {
             throw new Error(`Player ${player.player.id} not present in round`)

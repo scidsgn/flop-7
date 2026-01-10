@@ -1,79 +1,75 @@
 import { FlopCard, FlopNumberCard } from "./cards"
-import { Game } from "./game"
+import { Game, GameFlow } from "./game"
 import { Round } from "./round"
 
-export class GameRoundFlow {
-    #game: Game
-    #round: Round
-
-    constructor(game: Game, round: Round) {
-        this.#game = game
-        this.#round = round
+export class GameRoundFlow implements GameFlow {
+    async runRound(game: Game, round: Round): Promise<void> {
+        await this.#startTurn(game, round)
     }
 
-    async startTurn() {
-        if (this.#round.currentPlayer.cards.length === 0) {
-            const decision = await this.#game.playerRequests.requestChoice(
-                this.#round.currentPlayer,
+    async #startTurn(game: Game, round: Round): Promise<void> {
+        if (round.currentPlayer.cards.length === 0) {
+            const decision = await game.playerRequests.requestChoice(
+                round.currentPlayer,
                 "firstTurnHit",
                 ["hit"],
             )
 
             if (decision === "hit") {
-                await this.hit()
+                await this.#hit(game, round)
             }
         } else {
-            const decision = await this.#game.playerRequests.requestChoice(
-                this.#round.currentPlayer,
+            const decision = await game.playerRequests.requestChoice(
+                round.currentPlayer,
                 "startTurnHitOrStay",
                 ["hit", "stay"],
             )
 
             if (decision === "hit") {
-                await this.hit()
+                await this.#hit(game, round)
             } else {
-                await this.stay()
+                await this.#stay(game, round)
             }
         }
     }
 
-    async hit() {
-        const card = this.#game.deck.grab()
+    async #hit(game: Game, round: Round) {
+        const card = game.deck.grab()
 
-        this.#round.decreaseFlopThreeCounter()
+        round.decreaseFlopThreeCounter()
 
         switch (card.type) {
             case "number": {
-                await this.handleNumberCard(card)
+                await this.#handleNumberCard(game, round, card)
                 break
             }
             case "flopThree": {
-                if (this.#round.currentPlayer.flopThreeCounter > 0) {
-                    await this.addToHand(card)
+                if (round.currentPlayer.flopThreeCounter > 0) {
+                    await this.#addToHand(game, round, card)
                 } else {
-                    await this.flopThree()
+                    await this.#flopThree(game, round)
                 }
                 break
             }
             case "freeze": {
-                if (this.#round.currentPlayer.flopThreeCounter > 0) {
-                    await this.addToHand(card)
+                if (round.currentPlayer.flopThreeCounter > 0) {
+                    await this.#addToHand(game, round, card)
                 } else {
-                    await this.freeze()
+                    await this.#freeze(game, round)
                 }
                 break
             }
             case "secondChance":
             case "addModifier":
             case "multiplyModifier": {
-                await this.addToHand(card)
+                await this.#addToHand(game, round, card)
                 break
             }
         }
     }
 
-    async handleNumberCard(card: FlopNumberCard) {
-        const playerState = this.#round.currentPlayer
+    async #handleNumberCard(game: Game, round: Round, card: FlopNumberCard) {
+        const playerState = round.currentPlayer
         const alreadyHasThatCard = playerState.cards.some(
             (c) => c.type === "number" && c.value === card.value,
         )
@@ -82,177 +78,171 @@ export class GameRoundFlow {
                 (c) => c.type === "secondChance",
             )
             if (!secondChance) {
-                await this.bust()
+                await this.#bust(game, round)
             } else {
-                this.#round.discardCardFromCurrentPlayer(secondChance)
+                round.discardCardFromCurrentPlayer(secondChance)
 
                 if (playerState.flopThreeCounter > 0) {
-                    await this.hitMoreDuringFlop3()
+                    await this.#hitMoreDuringFlop3(game, round)
                     return
                 }
 
-                await this.performRemainingActions()
+                await this.#performRemainingActions(game, round)
             }
 
             return
         }
 
-        await this.addToHand(card)
+        await this.#addToHand(game, round, card)
     }
 
-    async hitMoreDuringFlop3() {
-        await this.#game.playerRequests.requestChoice(
-            this.#round.currentPlayer,
+    async #hitMoreDuringFlop3(game: Game, round: Round) {
+        await game.playerRequests.requestChoice(
+            round.currentPlayer,
             "flopThreeHit",
             ["hit"],
         )
 
-        await this.hit()
+        await this.#hit(game, round)
     }
 
-    async addToHand(card: FlopCard) {
-        this.#round.addCardToCurrentPlayer(card)
+    async #addToHand(game: Game, round: Round, card: FlopCard) {
+        round.addCardToCurrentPlayer(card)
 
-        const numberCardsCount = this.#round.currentPlayer.cards.filter(
+        const numberCardsCount = round.currentPlayer.cards.filter(
             (c) => c.type === "number",
         ).length
         if (numberCardsCount >= 7) {
-            this.#round.markCurrentPlayerWon()
-            await this.finishRound()
+            round.markCurrentPlayerWon()
+            await this.#finishRound(game, round)
             return
         }
 
-        if (this.#round.currentPlayer.flopThreeCounter > 0) {
-            await this.hitMoreDuringFlop3()
+        if (round.currentPlayer.flopThreeCounter > 0) {
+            await this.#hitMoreDuringFlop3(game, round)
             return
         }
 
-        await this.performRemainingActions()
+        await this.#performRemainingActions(game, round)
     }
 
-    async stay() {
-        this.#round.markCurrentPlayerStayed()
+    async #stay(game: Game, round: Round) {
+        round.markCurrentPlayerStayed()
 
-        await this.nextPlayer()
+        await this.#nextPlayer(game, round)
     }
 
-    async bust() {
-        this.#round.markCurrentPlayerBusted()
+    async #bust(game: Game, round: Round) {
+        round.markCurrentPlayerBusted()
 
-        await this.nextPlayer()
+        await this.#nextPlayer(game, round)
     }
 
-    async performRemainingActions() {
-        const playerState = this.#round.currentPlayer
+    async #performRemainingActions(game: Game, round: Round) {
+        const playerState = round.currentPlayer
         const actionCards = playerState.cards.filter(
             (c) => c.type === "freeze" || c.type === "flopThree",
         )
 
         if (actionCards.length > 0) {
             const firstActionCard = actionCards[0]
-            this.#round.discardCardFromCurrentPlayer(firstActionCard)
+            round.discardCardFromCurrentPlayer(firstActionCard)
 
             if (firstActionCard.type === "freeze") {
-                await this.freeze()
+                await this.#freeze(game, round)
             } else {
-                await this.flopThree()
+                await this.#flopThree(game, round)
             }
         }
 
-        await this.nextPlayer()
+        await this.#nextPlayer(game, round)
     }
 
-    async freeze() {
-        const activePlayers = this.#round.activePlayers
+    async #freeze(game: Game, round: Round) {
+        const activePlayers = round.activePlayers
         if (activePlayers.length === 0) {
             // Freeze player
-            this.#round.freezePlayer(this.#round.currentPlayer)
+            round.freezePlayer(round.currentPlayer)
 
-            await this.finishRound()
+            await this.#finishRound(game, round)
             return
         }
 
-        const selectedPlayer =
-            await this.#game.playerRequests.requestPlayerSelection(
-                this.#round.currentPlayer,
-                "freeze",
-                activePlayers,
-            )
-        if (selectedPlayer === this.#round.currentPlayer) {
+        const selectedPlayer = await game.playerRequests.requestPlayerSelection(
+            round.currentPlayer,
+            "freeze",
+            activePlayers,
+        )
+        if (selectedPlayer === round.currentPlayer) {
             if (activePlayers.length === 1) {
-                await this.finishRound()
+                await this.#finishRound(game, round)
                 return
             }
 
-            await this.nextPlayer()
+            await this.#nextPlayer(game, round)
             return
         }
 
-        await this.performRemainingActions()
+        await this.#performRemainingActions(game, round)
     }
 
-    async flopThree() {
-        const activePlayers = this.#round.activePlayers
+    async #flopThree(game: Game, round: Round) {
+        const activePlayers = round.activePlayers
 
-        const selectedPlayer =
-            await this.#game.playerRequests.requestPlayerSelection(
-                this.#round.currentPlayer,
-                "flopThree",
-                activePlayers,
-            )
-        if (selectedPlayer === this.#round.currentPlayer) {
-            this.#round.startFlopThreeForCurrentPlayer()
+        const selectedPlayer = await game.playerRequests.requestPlayerSelection(
+            round.currentPlayer,
+            "flopThree",
+            activePlayers,
+        )
+        if (selectedPlayer === round.currentPlayer) {
+            round.startFlopThreeForCurrentPlayer()
 
-            await this.hitMoreDuringFlop3()
+            await this.#hitMoreDuringFlop3(game, round)
         } else {
-            this.#round.startFlopThreeForPlayer(selectedPlayer)
+            round.startFlopThreeForPlayer(selectedPlayer)
 
-            await this.hitMoreDuringFlop3()
+            await this.#hitMoreDuringFlop3(game, round)
         }
     }
 
-    async nextPlayer() {
-        const countActivePlayers = this.#round.activePlayers.length
+    async #nextPlayer(game: Game, round: Round) {
+        const countActivePlayers = round.activePlayers.length
         if (countActivePlayers === 0) {
-            await this.finishRound()
+            await this.#finishRound(game, round)
             return
         }
 
-        while (!this.#round.isFlopThreeQueueEmpty) {
-            const player = this.#round.shiftFlopThreePlayerQueue()
+        while (!round.isFlopThreeQueueEmpty) {
+            const player = round.shiftFlopThreePlayerQueue()
             if (player.state !== "active") {
                 continue
             }
 
-            this.#round.setCurrentPlayer(player)
-            await this.performRemainingActions()
+            round.setCurrentPlayer(player)
+            await this.#performRemainingActions(game, round)
             return
         }
 
-        const currentPlayerIndex = this.#round.players.indexOf(
-            this.#round.currentPlayer,
-        )
-        const nextIndexStart =
-            (currentPlayerIndex + 1) % this.#round.players.length
+        const currentPlayerIndex = round.players.indexOf(round.currentPlayer)
+        const nextIndexStart = (currentPlayerIndex + 1) % round.players.length
         const nextPlayersQueue = [
-            ...this.#round.players.slice(nextIndexStart),
-            ...this.#round.players.slice(0, nextIndexStart),
+            ...round.players.slice(nextIndexStart),
+            ...round.players.slice(0, nextIndexStart),
         ]
 
         const nextPlayer = nextPlayersQueue.find(
             (player) => player.state === "active",
         )
         if (!nextPlayer) {
-            await this.finishRound()
+            await this.#finishRound(game, round)
             return
         }
 
-        this.#round.setCurrentPlayer(nextPlayer)
-        await this.startTurn()
+        round.setCurrentPlayer(nextPlayer)
+        await this.#startTurn(game, round)
     }
 
-    async finishRound() {
-        // TODO
-        console.log("round over")
+    async #finishRound(game: Game, round: Round) {
+        round.finish()
     }
 }

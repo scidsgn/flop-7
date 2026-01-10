@@ -9,12 +9,14 @@ export type PlayerChoiceReason =
 export type PlayerSelectionReason = "flopThree" | "freeze"
 
 export type PlayerChoiceRequest = {
+    id: string
     targetPlayer: Player
     reason: PlayerChoiceReason
     choices: string[]
 }
 
 export type PlayerSelectionRequest = {
+    id: string
     targetPlayer: Player
     reason: PlayerSelectionReason
     players: Player[]

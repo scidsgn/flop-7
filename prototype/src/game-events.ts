@@ -32,7 +32,14 @@ type RoundPlayerEvents =
           RoundPlayerEventData & { card: FlopCard }
       >
 
-type RoundEvents = BaseEvent<"roundPlayerChange", { playerId: string }>
+type RoundEvents =
+    | BaseEvent<"roundPlayerChange", { playerId: string }>
+    | BaseEvent<
+          "roundFinish",
+          {
+              players: RoundPlayerEventData[]
+          }
+      >
 
 type DeckEvents = BaseEvent<
     "deckCardGrabbed",

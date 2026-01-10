@@ -1,3 +1,4 @@
+import * as crypto from "node:crypto"
 import { createInterface } from "node:readline/promises"
 
 import { GameEvents } from "../game-events"
@@ -30,6 +31,7 @@ export class CliPlayerRequests implements PlayerRequests {
         this.#events.emit({
             type: "choiceRequested",
             payload: {
+                id: crypto.randomUUID(),
                 targetPlayer: targetPlayer.player,
                 reason,
                 choices,
@@ -57,6 +59,7 @@ export class CliPlayerRequests implements PlayerRequests {
         this.#events.emit({
             type: "selectionRequested",
             payload: {
+                id: crypto.randomUUID(),
                 targetPlayer: targetPlayer.player,
                 reason,
                 players: players.map((p) => p.player),

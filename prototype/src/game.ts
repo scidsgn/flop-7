@@ -8,6 +8,10 @@ type GamePlayer = {
     name: string
 }
 
+export interface GameFlow {
+    runRound(game: Game, round: Round): Promise<void>
+}
+
 export class Game {
     #players: GamePlayer[]
 

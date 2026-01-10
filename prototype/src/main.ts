@@ -27,9 +27,9 @@ game.events.asyncStream.forEach((update) =>
 const round = game.startRound()
 
 const main = async () => {
-    const flow = new GameRoundFlow(game, round)
+    const flow = new GameRoundFlow()
 
-    await flow.startTurn()
+    await flow.runRound(game, round)
 
     playerRequests.close()
 }
