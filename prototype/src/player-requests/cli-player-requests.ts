@@ -1,26 +1,14 @@
 import { createInterface } from "node:readline/promises"
 
-import { GameEvents } from "./game-events"
-import { Player } from "./player"
-import { RoundPlayer } from "./round-player"
+import { GameEvents } from "../game-events"
+import { RoundPlayer } from "../round-player"
+import {
+    PlayerChoiceReason,
+    PlayerRequests,
+    PlayerSelectionReason,
+} from "./player-requests"
 
-type PlayerChoiceReason = "startTurnHitOrStay" | "firstTurnHit" | "flopThreeHit"
-
-type PlayerSelectionReason = "flopThree" | "freeze"
-
-export type PlayerChoiceRequest = {
-    targetPlayer: Player
-    reason: PlayerChoiceReason
-    choices: string[]
-}
-
-export type PlayerSelectionRequest = {
-    targetPlayer: Player
-    reason: PlayerSelectionReason
-    players: Player[]
-}
-
-export class PlayerRequests {
+export class CliPlayerRequests implements PlayerRequests {
     #events: GameEvents
 
     #rl = createInterface({

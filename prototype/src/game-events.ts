@@ -1,7 +1,10 @@
 import { Emitter } from "@scidsgn/std"
 
 import { FlopCard } from "./cards"
-import { PlayerChoiceRequest, PlayerSelectionRequest } from "./player-requests"
+import {
+    PlayerChoiceRequest,
+    PlayerSelectionRequest,
+} from "./player-requests/player-requests"
 
 export type BaseEvent<TType extends string, TPayload> = {
     type: TType

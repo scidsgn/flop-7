@@ -1,16 +1,24 @@
 import { Game } from "./game"
+import { GameEvents } from "./game-events"
 import { GameRoundFlow } from "./game-round-flow"
+import { CliPlayerRequests } from "./player-requests/cli-player-requests"
 
-const game = new Game([
-    {
-        id: "p1",
-        name: "GLaDOS",
-    },
-    {
-        id: "p2",
-        name: "Gordon Freeman",
-    },
-])
+const events = new GameEvents()
+const playerRequests = new CliPlayerRequests(events)
+const game = new Game(
+    [
+        {
+            id: "p1",
+            name: "GLaDOS",
+        },
+        {
+            id: "p2",
+            name: "Gordon Freeman",
+        },
+    ],
+    playerRequests,
+    events,
+)
 
 game.events.asyncStream.forEach((update) =>
     console.log(`${JSON.stringify(update, null, 2)}\n`),
@@ -23,7 +31,7 @@ const main = async () => {
 
     await flow.startTurn()
 
-    game.playerRequests.close()
+    playerRequests.close()
 }
 
 main()

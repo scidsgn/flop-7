@@ -12,15 +12,28 @@ export class GameRoundFlow {
     }
 
     async startTurn() {
-        const decision = await this.#game.playerRequests.requestChoice(
-            this.#round.currentPlayer,
-            "startTurnHitOrStay",
-            ["hit", "stay"],
-        )
-        if (decision === "hit") {
-            await this.hit()
+        if (this.#round.currentPlayer.cards.length === 0) {
+            const decision = await this.#game.playerRequests.requestChoice(
+                this.#round.currentPlayer,
+                "firstTurnHit",
+                ["hit"],
+            )
+
+            if (decision === "hit") {
+                await this.hit()
+            }
         } else {
-            await this.stay()
+            const decision = await this.#game.playerRequests.requestChoice(
+                this.#round.currentPlayer,
+                "startTurnHitOrStay",
+                ["hit", "stay"],
+            )
+
+            if (decision === "hit") {
+                await this.hit()
+            } else {
+                await this.stay()
+            }
         }
     }
 
