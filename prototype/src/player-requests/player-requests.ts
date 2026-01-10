@@ -10,6 +10,7 @@ export type PlayerSelectionReason = "flopThree" | "freeze"
 
 export type PlayerChoiceRequest = {
     id: string
+    type: "choice"
     targetPlayer: Player
     reason: PlayerChoiceReason
     choices: string[]
@@ -17,12 +18,17 @@ export type PlayerChoiceRequest = {
 
 export type PlayerSelectionRequest = {
     id: string
+    type: "playerSelection"
     targetPlayer: Player
     reason: PlayerSelectionReason
     players: Player[]
 }
 
+export type PlayerRequest = PlayerChoiceRequest | PlayerSelectionRequest
+
 export interface PlayerRequests {
+    unfulfilledRequests: PlayerRequest[]
+
     requestChoice<T extends string>(
         targetPlayer: RoundPlayer,
         reason: PlayerChoiceReason,

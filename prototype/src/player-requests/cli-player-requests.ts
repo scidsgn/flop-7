@@ -5,11 +5,14 @@ import { GameEvents } from "../game-events"
 import { RoundPlayer } from "../round-player"
 import {
     PlayerChoiceReason,
+    PlayerRequest,
     PlayerRequests,
     PlayerSelectionReason,
 } from "./player-requests"
 
 export class CliPlayerRequests implements PlayerRequests {
+    #unfulfilledRequests: PlayerRequest[] = []
+
     #events: GameEvents
 
     #rl = createInterface({
@@ -21,22 +24,30 @@ export class CliPlayerRequests implements PlayerRequests {
         this.#events = events
     }
 
+    get unfulfilledRequests() {
+        return this.#unfulfilledRequests
+    }
+
     async requestChoice<T extends string>(
         targetPlayer: RoundPlayer,
         reason: PlayerChoiceReason,
         choices: T[],
     ) {
         const question = `${reason} [${choices.join("/")}]`
+        const request: PlayerRequest = {
+            id: crypto.randomUUID(),
+            type: "choice",
+            targetPlayer: targetPlayer.player,
+            reason,
+            choices,
+        }
 
         this.#events.emit({
             type: "choiceRequested",
-            payload: {
-                id: crypto.randomUUID(),
-                targetPlayer: targetPlayer.player,
-                reason,
-                choices,
-            },
+            payload: request,
         })
+
+        this.#unfulfilledRequests.push(request)
 
         while (true) {
             const userAnswer = (await this.#rl.question(question)).trim()
@@ -44,6 +55,10 @@ export class CliPlayerRequests implements PlayerRequests {
             if (!choices.includes(userAnswer as T)) {
                 continue
             }
+
+            this.#unfulfilledRequests = this.#unfulfilledRequests.filter(
+                (r) => r.id !== request.id,
+            )
 
             return userAnswer as T
         }
@@ -55,24 +70,34 @@ export class CliPlayerRequests implements PlayerRequests {
         players: RoundPlayer[],
     ) {
         const question = `${reason} [${players.map((p) => p.player.name).join("/")}]`
+        const request: PlayerRequest = {
+            id: crypto.randomUUID(),
+            type: "playerSelection",
+            targetPlayer: targetPlayer.player,
+            reason,
+            players: players.map((p) => p.player),
+        }
 
         this.#events.emit({
             type: "selectionRequested",
-            payload: {
-                id: crypto.randomUUID(),
-                targetPlayer: targetPlayer.player,
-                reason,
-                players: players.map((p) => p.player),
-            },
+            payload: request,
         })
+
+        this.#unfulfilledRequests.push(request)
 
         while (true) {
             const answer = (await this.#rl.question(question)).trim()
 
             const player = players.find((p) => p.player.name === answer)
-            if (player) {
-                return player
+            if (!player) {
+                continue
             }
+
+            this.#unfulfilledRequests = this.#unfulfilledRequests.filter(
+                (r) => r.id !== request.id,
+            )
+
+            return player
         }
     }
 
