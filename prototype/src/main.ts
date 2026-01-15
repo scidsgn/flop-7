@@ -18,18 +18,15 @@ const game = new Game(
     ],
     playerRequests,
     events,
+    new GameRoundFlow(),
 )
 
 game.events.asyncStream.forEach((update) =>
     console.log(`${JSON.stringify(update, null, 2)}\n`),
 )
 
-const round = game.startRound()
-
 const main = async () => {
-    const flow = new GameRoundFlow()
-
-    await flow.runRound(game, round)
+    await game.startRound()
 
     playerRequests.close()
 }

@@ -1,32 +1,27 @@
-export type FlopNumberCard = {
-    type: "number"
-    value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
-}
+import { z } from "zod"
 
-export type FlopActionCard = {
-    type: "freeze" | "flopThree"
-}
+import {
+    flopActionCardSchema,
+    flopAddModifierCardSchema,
+    flopCardSchema,
+    flopMultiplyModifierCardSchema,
+    flopNumberCardSchema,
+    flopSecondChanceCardSchema,
+} from "./schemas/cards"
 
-export type FlopSecondChanceCard = {
-    type: "secondChance"
-}
+export type FlopNumberCard = z.infer<typeof flopNumberCardSchema>
 
-export type FlopAddModifierCard = {
-    type: "addModifier"
-    add: 2 | 4 | 6 | 8 | 10
-}
+export type FlopActionCard = z.infer<typeof flopActionCardSchema>
 
-export type FlopMultiplyModifierCard = {
-    type: "multiplyModifier"
-    multiplier: 2
-}
+export type FlopSecondChanceCard = z.infer<typeof flopSecondChanceCardSchema>
 
-export type FlopCard =
-    | FlopNumberCard
-    | FlopActionCard
-    | FlopSecondChanceCard
-    | FlopAddModifierCard
-    | FlopMultiplyModifierCard
+export type FlopAddModifierCard = z.infer<typeof flopAddModifierCardSchema>
+
+export type FlopMultiplyModifierCard = z.infer<
+    typeof flopMultiplyModifierCardSchema
+>
+
+export type FlopCard = z.infer<typeof flopCardSchema>
 
 export function countCardScore(cards: FlopCard[]) {
     let sum = 0

@@ -1,8 +1,5 @@
 import { z } from "zod"
 
-export const playerSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-})
+import { gamePlayerSchema } from "./schemas/snapshots"
 
-export type Player = z.infer<typeof playerSchema>
+export type Player = z.infer<typeof gamePlayerSchema>

@@ -214,6 +214,10 @@ export class GameRoundFlow implements GameFlow {
 
         while (!round.isFlopThreeQueueEmpty) {
             const player = round.shiftFlopThreePlayerQueue()
+            if (!player) {
+                break
+            }
+
             if (player.state !== "active") {
                 continue
             }

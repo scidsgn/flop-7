@@ -1,15 +1,14 @@
+import { z } from "zod"
+
 import { FlopCard } from "./cards"
 import { Game } from "./game"
 import { GameEvents } from "./game-events"
-import { RoundPlayer, RoundPlayerSnapshot } from "./round-player"
+import { RoundPlayer } from "./round-player"
+import { roundSnapshotSchema } from "./schemas/snapshots"
 
-type RoundState = "started" | "finished"
+export type RoundSnapshot = z.infer<typeof roundSnapshotSchema>
 
-export type RoundSnapshot = {
-    state: RoundState
-    players: RoundPlayerSnapshot[]
-    currentPlayerId: string
-}
+type RoundState = RoundSnapshot["state"]
 
 export class Round {
     #state: RoundState = "started"

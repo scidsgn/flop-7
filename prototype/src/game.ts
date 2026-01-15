@@ -1,21 +1,20 @@
+import { z } from "zod"
+
 import { Deck } from "./deck"
 import { GameEvents } from "./game-events"
+import { PlayerRequests } from "./player-requests/player-requests"
+import { Round } from "./round"
 import {
-    PlayerRequest,
-    PlayerRequests,
-} from "./player-requests/player-requests"
-import { Round, RoundSnapshot } from "./round"
+    gamePlayerSchema,
+    gameSnapshotSchema,
+    gameSummarySchema,
+} from "./schemas/snapshots"
 
-type GamePlayer = {
-    id: string
-    name: string
-}
+type GamePlayer = z.infer<typeof gamePlayerSchema>
 
-type GameSnapshot = {
-    players: GamePlayer[]
-    unfulfilledRequests: PlayerRequest[]
-    rounds: RoundSnapshot[]
-}
+export type GameSnapshot = z.infer<typeof gameSnapshotSchema>
+
+type GameSummary = z.infer<typeof gameSummarySchema>
 
 export interface GameFlow {
     runRound(game: Game, round: Round): Promise<void>
@@ -30,14 +29,18 @@ export class Game {
 
     #playerRequests: PlayerRequests
 
+    #flow: GameFlow
+
     constructor(
         players: GamePlayer[],
         playerRequests: PlayerRequests,
         gameEvents: GameEvents,
+        flow: GameFlow,
     ) {
         this.#players = players
         this.#playerRequests = playerRequests
         this.#events = gameEvents
+        this.#flow = flow
 
         this.#deck = new Deck(this.#events)
 
@@ -69,13 +72,41 @@ export class Game {
             players: this.#players,
             unfulfilledRequests: this.#playerRequests.unfulfilledRequests,
             rounds: this.#rounds.map((round) => round.snapshot),
+            summary: this.#calculateRoundSummary(),
         }
     }
 
-    startRound() {
+    async startRound() {
         const round = new Round(this)
         this.#rounds.push(round)
 
-        return round
+        this.#events.emit({
+            type: "gameRoundStarted",
+            payload: this.snapshot,
+        })
+
+        await this.#flow.runRound(this, round)
+
+        console.log(this.#calculateRoundSummary())
+    }
+
+    #calculateRoundSummary(): GameSummary {
+        const totals: Map<string, number> = new Map()
+
+        for (const round of this.#rounds) {
+            for (const player of round.players) {
+                totals.set(
+                    player.player.id,
+                    (totals.get(player.player.id) ?? 0) + player.score,
+                )
+            }
+        }
+
+        return {
+            players: [...totals.entries()].map(([id, score]) => ({
+                playerId: id,
+                totalScore: score,
+            })),
+        }
     }
 }

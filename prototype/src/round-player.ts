@@ -1,16 +1,13 @@
+import { z } from "zod"
+
 import { FlopCard, countCardScore } from "./cards"
 import { GameEvents } from "./game-events"
 import { Player } from "./player"
+import { roundPlayerSnapshotSchema } from "./schemas/snapshots"
 
-type RoundPlayerState = "active" | "busted" | "frozen" | "stayed" | "won"
+export type RoundPlayerSnapshot = z.infer<typeof roundPlayerSnapshotSchema>
 
-export type RoundPlayerSnapshot = {
-    playerId: string
-    cards: FlopCard[]
-    flopThreeCounter: number
-    score: number
-    state: "active" | "busted" | "frozen" | "stayed" | "won"
-}
+type RoundPlayerState = RoundPlayerSnapshot["state"]
 
 export class RoundPlayer {
     #events: GameEvents

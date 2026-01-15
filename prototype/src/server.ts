@@ -1,4 +1,5 @@
 import node from "@elysiajs/node"
+import openapi from "@elysiajs/openapi"
 import Elysia, { sse } from "elysia"
 import { z } from "zod"
 
@@ -6,6 +7,7 @@ import { Game } from "./game"
 import { GameEvents } from "./game-events"
 import { GameRoundFlow } from "./game-round-flow"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
+import { gameEventsSchema } from "./schemas/events"
 
 const events = new GameEvents()
 const playerRequests = new ServerPlayerRequests(events)
@@ -22,26 +24,47 @@ const game = new Game(
     ],
     playerRequests,
     events,
+    new GameRoundFlow(),
 )
 
-const flow = new GameRoundFlow()
-flow.runRound(game, game.startRound())
+game.startRound()
 
 new Elysia({ adapter: node() })
-    .get("/game", () => game.snapshot)
-    .get("/game/events", async function* () {
-        yield sse({
-            event: "initSnapshot",
-            data: game.snapshot,
-        })
-
-        for await (const event of game.events.asyncStream) {
-            yield sse({
-                event: event.type,
-                data: event.payload,
-            })
-        }
+    .use(
+        openapi({
+            documentation: {
+                info: {
+                    title: "Flop 7 Server Documentation",
+                    version: "0.1.0",
+                },
+            },
+            mapJsonSchema: {
+                zod: z.toJSONSchema,
+            },
+        }),
+    )
+    .model({
+        GameEvent: gameEventsSchema,
     })
+    .get(
+        "/game/events",
+        async function* () {
+            yield sse({
+                event: "initSnapshot",
+                data: game.snapshot,
+            })
+
+            for await (const event of game.events.asyncStream) {
+                yield sse({
+                    event: event.type,
+                    data: event.payload,
+                })
+            }
+        },
+        {
+            body: gameEventsSchema,
+        },
+    )
     .post(
         "/game/requests",
         ({ body, status }) => {
