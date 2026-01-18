@@ -7,7 +7,18 @@ import { Game } from "./game"
 import { GameEvents } from "./game-events"
 import { GameRoundFlow } from "./game-round-flow"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
+import { flopCardSchema } from "./schemas/cards"
 import { gameEventsSchema } from "./schemas/events"
+import {
+    gamePlayerSchema,
+    gameSnapshotSchema,
+    gameSummarySchema,
+    playerChoiceRequestSchema,
+    playerRequestSchema,
+    playerSelectionRequestSchema,
+    roundPlayerSnapshotSchema,
+    roundSnapshotSchema,
+} from "./schemas/snapshots"
 
 const events = new GameEvents()
 const playerRequests = new ServerPlayerRequests(events)
@@ -44,6 +55,15 @@ new Elysia({ adapter: node() })
         }),
     )
     .model({
+        FlopCard: flopCardSchema,
+        RoundPlayerSnapshot: roundPlayerSnapshotSchema,
+        RoundSnapshot: roundSnapshotSchema,
+        GamePlayer: gamePlayerSchema,
+        PlayerChoiceRequest: playerChoiceRequestSchema,
+        PlayerSelectionRequest: playerSelectionRequestSchema,
+        PlayerRequest: playerRequestSchema,
+        GameSummary: gameSummarySchema,
+        GameSnapshot: gameSnapshotSchema,
         GameEvent: gameEventsSchema,
     })
     .get(

@@ -1,0 +1,19 @@
+{
+    "plugins": [
+        "@trivago/prettier-plugin-sort-imports",
+        "prettier-plugin-tailwindcss"
+    ],
+    "printWidth": 80,
+    "tabWidth": 4,
+    "semi": false,
+    "importOrder": ["<THIRD_PARTY_MODULES>", "^[./]"],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true,
+    "importOrderParserPlugins": [
+        "decorators",
+        "decoratorAutoAccessors",
+        "typescript",
+        "jsx"
+    ],
+    "tailwindFunctions": ["twMerge"]
+}
