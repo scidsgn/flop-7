@@ -1,5 +1,5 @@
+import cors from "@elysiajs/cors"
 import node from "@elysiajs/node"
-import openapi from "@elysiajs/openapi"
 import Elysia, { sse } from "elysia"
 import { z } from "zod"
 
@@ -7,18 +7,7 @@ import { Game } from "./game"
 import { GameEvents } from "./game-events"
 import { GameRoundFlow } from "./game-round-flow"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
-import { flopCardSchema } from "./schemas/cards"
 import { gameEventsSchema } from "./schemas/events"
-import {
-    gamePlayerSchema,
-    gameSnapshotSchema,
-    gameSummarySchema,
-    playerChoiceRequestSchema,
-    playerRequestSchema,
-    playerSelectionRequestSchema,
-    roundPlayerSnapshotSchema,
-    roundSnapshotSchema,
-} from "./schemas/snapshots"
 
 const events = new GameEvents()
 const playerRequests = new ServerPlayerRequests(events)
@@ -41,31 +30,7 @@ const game = new Game(
 game.startRound()
 
 new Elysia({ adapter: node() })
-    .use(
-        openapi({
-            documentation: {
-                info: {
-                    title: "Flop 7 Server Documentation",
-                    version: "0.1.0",
-                },
-            },
-            mapJsonSchema: {
-                zod: z.toJSONSchema,
-            },
-        }),
-    )
-    .model({
-        FlopCard: flopCardSchema,
-        RoundPlayerSnapshot: roundPlayerSnapshotSchema,
-        RoundSnapshot: roundSnapshotSchema,
-        GamePlayer: gamePlayerSchema,
-        PlayerChoiceRequest: playerChoiceRequestSchema,
-        PlayerSelectionRequest: playerSelectionRequestSchema,
-        PlayerRequest: playerRequestSchema,
-        GameSummary: gameSummarySchema,
-        GameSnapshot: gameSnapshotSchema,
-        GameEvent: gameEventsSchema,
-    })
+    .use(cors())
     .get(
         "/game/events",
         async function* () {

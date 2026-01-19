@@ -8,8 +8,7 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "format": "prettier . --write",
-        "preview": "vite preview",
-        "schema": "openapi-ts"
+        "preview": "vite preview"
     },
     "dependencies": {
         "react": "^19.2.0",
@@ -19,7 +18,6 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.39.1",
-        "@hey-api/openapi-ts": "^0.90.3",
         "@tailwindcss/vite": "^4.1.18",
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
         "@types/node": "^24.10.1",
