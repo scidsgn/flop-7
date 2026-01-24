@@ -7,7 +7,6 @@ import { Game } from "./game"
 import { GameEvents } from "./game-events"
 import { GameRoundFlow } from "./game-round-flow"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
-import { gameEventsSchema } from "./schemas/events"
 
 const events = new GameEvents()
 const playerRequests = new ServerPlayerRequests(events)
@@ -31,25 +30,19 @@ game.startRound()
 
 new Elysia({ adapter: node() })
     .use(cors())
-    .get(
-        "/game/events",
-        async function* () {
-            yield sse({
-                event: "initSnapshot",
-                data: game.snapshot,
-            })
+    .get("/game/events", async function* () {
+        yield sse({
+            event: "initSnapshot",
+            data: game.snapshot,
+        })
 
-            for await (const event of game.events.asyncStream) {
-                yield sse({
-                    event: event.type,
-                    data: event.payload,
-                })
-            }
-        },
-        {
-            body: gameEventsSchema,
-        },
-    )
+        for await (const event of game.events.asyncStream) {
+            yield sse({
+                event: event.type,
+                data: event.payload,
+            })
+        }
+    })
     .post(
         "/game/requests",
         ({ body, status }) => {
