@@ -1,10 +1,10 @@
+import { PlayerRequest } from "@flop-7/protocol/snapshots"
 import crypto from "node:crypto"
 
 import { GameEvents } from "../game-events"
 import { RoundPlayer } from "../round-player"
 import {
     PlayerChoiceReason,
-    PlayerRequest,
     PlayerRequests,
     PlayerSelectionReason,
 } from "./player-requests"

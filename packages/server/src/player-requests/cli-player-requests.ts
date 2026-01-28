@@ -1,3 +1,4 @@
+import { PlayerRequest } from "@flop-7/protocol/snapshots"
 import * as crypto from "node:crypto"
 import { createInterface } from "node:readline/promises"
 
@@ -5,7 +6,6 @@ import { GameEvents } from "../game-events"
 import { RoundPlayer } from "../round-player"
 import {
     PlayerChoiceReason,
-    PlayerRequest,
     PlayerRequests,
     PlayerSelectionReason,
 } from "./player-requests"
