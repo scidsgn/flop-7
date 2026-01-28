@@ -66,6 +66,7 @@ export class Game {
             unfulfilledRequests: this.#playerRequests.unfulfilledRequests,
             rounds: this.#rounds.map((round) => round.snapshot),
             summary: this.#calculateRoundSummary(),
+            deckStats: this.#deck.state,
         }
     }
 

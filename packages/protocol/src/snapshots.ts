@@ -81,12 +81,20 @@ export const gameSummarySchema = z
 
 export type GameSummary = z.infer<typeof gameSummarySchema>
 
+export const deckStatsSchema = z.object({
+    remainingCards: z.number(),
+    totalCards: z.number(),
+})
+
+export type DeckStats = z.infer<typeof deckStatsSchema>
+
 export const gameSnapshotSchema = z
     .object({
         players: z.array(gamePlayerSchema),
         unfulfilledRequests: z.array(playerRequestSchema),
         rounds: z.array(roundSnapshotSchema),
         summary: gameSummarySchema,
+        deckStats: deckStatsSchema,
     })
     .meta({ title: "GameSnapshot" })
 
