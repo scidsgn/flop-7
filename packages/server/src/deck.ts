@@ -1,4 +1,5 @@
-import { FlopCard, FlopNumberCard } from "./cards"
+import { FlopCard, FlopCardOfType } from "@flop-7/protocol/cards"
+
 import { GameEvents } from "./game-events"
 
 const fullDeck: FlopCard[] = []
@@ -8,7 +9,7 @@ for (let i = 1; i <= 12; i++) {
     for (let j = 0; j < i; j++) {
         fullDeck.push({
             type: "number",
-            value: i as FlopNumberCard["value"],
+            value: i as FlopCardOfType<"number">["value"],
         })
     }
 }

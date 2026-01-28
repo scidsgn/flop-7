@@ -1,7 +1,7 @@
+import { FlopCard } from "@flop-7/protocol/cards"
 import { roundSnapshotSchema } from "@flop-7/protocol/snapshots"
 import { z } from "zod"
 
-import { FlopCard } from "./cards"
 import { Game } from "./game"
 import { GameEvents } from "./game-events"
 import { RoundPlayer } from "./round-player"

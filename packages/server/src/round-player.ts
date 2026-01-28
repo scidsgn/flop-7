@@ -1,9 +1,10 @@
+import { FlopCard } from "@flop-7/protocol/cards"
 import { roundPlayerSnapshotSchema } from "@flop-7/protocol/snapshots"
 import { z } from "zod"
 
-import { FlopCard, countCardScore } from "./cards"
 import { GameEvents } from "./game-events"
 import { Player } from "./player"
+import { countCardScore } from "./score"
 
 export type RoundPlayerSnapshot = z.infer<typeof roundPlayerSnapshotSchema>
 

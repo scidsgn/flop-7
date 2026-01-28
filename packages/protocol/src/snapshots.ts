@@ -12,6 +12,8 @@ export const roundPlayerSnapshotSchema = z
     })
     .meta({ title: "RoundPlayerSnapshot" })
 
+export type RoundPlayerSnapshot = z.infer<typeof roundPlayerSnapshotSchema>
+
 export const roundSnapshotSchema = z
     .object({
         state: z.enum(["started", "finished"]),
@@ -20,12 +22,16 @@ export const roundSnapshotSchema = z
     })
     .meta({ title: "RoundSnapshot" })
 
+export type RoundSnapshot = z.infer<typeof roundSnapshotSchema>
+
 export const gamePlayerSchema = z
     .object({
         id: z.string(),
         name: z.string(),
     })
     .meta({ title: "GamePlayer" })
+
+export type GamePlayer = z.infer<typeof gamePlayerSchema>
 
 export const playerChoiceRequestSchema = z
     .object({
@@ -37,6 +43,8 @@ export const playerChoiceRequestSchema = z
     })
     .meta({ title: "PlayerChoiceRequest" })
 
+export type PlayerChoiceRequest = z.infer<typeof playerChoiceRequestSchema>
+
 export const playerSelectionRequestSchema = z
     .object({
         id: z.string(),
@@ -47,12 +55,18 @@ export const playerSelectionRequestSchema = z
     })
     .meta({ title: "PlayerSelectionRequest" })
 
+export type PlayerSelectionRequest = z.infer<
+    typeof playerSelectionRequestSchema
+>
+
 export const playerRequestSchema = z
     .discriminatedUnion("type", [
         playerChoiceRequestSchema,
         playerSelectionRequestSchema,
     ])
     .meta({ title: "PlayerRequest" })
+
+export type PlayerRequest = z.infer<typeof playerRequestSchema>
 
 export const gameSummarySchema = z
     .object({
@@ -65,6 +79,8 @@ export const gameSummarySchema = z
     })
     .meta({ title: "GameSummary" })
 
+export type GameSummary = z.infer<typeof gameSummarySchema>
+
 export const gameSnapshotSchema = z
     .object({
         players: z.array(gamePlayerSchema),
@@ -73,3 +89,5 @@ export const gameSnapshotSchema = z
         summary: gameSummarySchema,
     })
     .meta({ title: "GameSnapshot" })
+
+export type GameSnapshot = z.infer<typeof gameSnapshotSchema>

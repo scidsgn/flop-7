@@ -44,3 +44,9 @@ export const flopCardSchema = z
     .meta({
         title: "FlopCard",
     })
+
+export type FlopCard = z.infer<typeof flopCardSchema>
+export type FlopCardOfType<Type extends FlopCard["type"]> = Extract<
+    FlopCard,
+    { type: Type }
+>

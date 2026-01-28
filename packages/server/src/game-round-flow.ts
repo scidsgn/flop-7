@@ -1,4 +1,5 @@
-import { FlopCard, FlopNumberCard } from "./cards"
+import { FlopCard, FlopCardOfType } from "@flop-7/protocol/cards"
+
 import { Game, GameFlow } from "./game"
 import { Round } from "./round"
 
@@ -68,7 +69,11 @@ export class GameRoundFlow implements GameFlow {
         }
     }
 
-    async #handleNumberCard(game: Game, round: Round, card: FlopNumberCard) {
+    async #handleNumberCard(
+        game: Game,
+        round: Round,
+        card: FlopCardOfType<"number">,
+    ) {
         const playerState = round.currentPlayer
         const alreadyHasThatCard = playerState.cards.some(
             (c) => c.type === "number" && c.value === card.value,
