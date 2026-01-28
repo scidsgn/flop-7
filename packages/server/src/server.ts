@@ -8,7 +8,6 @@ import { GameEvents } from "./game-events"
 import { GameRoundFlow } from "./game-round-flow"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
 
-
 const events = new GameEvents()
 const playerRequests = new ServerPlayerRequests(events)
 const game = new Game(
@@ -26,8 +25,6 @@ const game = new Game(
     events,
     new GameRoundFlow(),
 )
-
-game.startRound()
 
 new Elysia({ adapter: node() })
     .use(cors())

@@ -114,6 +114,10 @@ export class ServerPlayerRequests implements PlayerRequests {
 
         request.resolver(value)
 
+        this.#waitingRequests = this.#waitingRequests.filter(
+            (r) => r.request.id !== requestId,
+        )
+
         this.#events.emit({
             type: "requestFulfilled",
             payload: { requestId: requestId },
