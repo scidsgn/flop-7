@@ -1,4 +1,5 @@
-import { Player } from "../player"
+import { GamePlayer } from "@flop-7/protocol/snapshots"
+
 import { RoundPlayer } from "../round-player"
 
 export type PlayerChoiceReason =
@@ -11,7 +12,7 @@ export type PlayerSelectionReason = "flopThree" | "freeze"
 export type PlayerChoiceRequest = {
     id: string
     type: "choice"
-    targetPlayer: Player
+    targetPlayer: GamePlayer
     reason: PlayerChoiceReason
     choices: string[]
 }
@@ -19,9 +20,9 @@ export type PlayerChoiceRequest = {
 export type PlayerSelectionRequest = {
     id: string
     type: "playerSelection"
-    targetPlayer: Player
+    targetPlayer: GamePlayer
     reason: PlayerSelectionReason
-    players: Player[]
+    players: GamePlayer[]
 }
 
 export type PlayerRequest = PlayerChoiceRequest | PlayerSelectionRequest

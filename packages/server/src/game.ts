@@ -1,20 +1,13 @@
 import {
-    gamePlayerSchema,
-    gameSnapshotSchema,
-    gameSummarySchema,
+    GamePlayer,
+    GameSnapshot,
+    GameSummary,
 } from "@flop-7/protocol/snapshots"
-import { z } from "zod"
 
 import { Deck } from "./deck"
 import { GameEvents } from "./game-events"
 import { PlayerRequests } from "./player-requests/player-requests"
 import { Round } from "./round"
-
-type GamePlayer = z.infer<typeof gamePlayerSchema>
-
-export type GameSnapshot = z.infer<typeof gameSnapshotSchema>
-
-type GameSummary = z.infer<typeof gameSummarySchema>
 
 export interface GameFlow {
     runRound(game: Game, round: Round): Promise<void>

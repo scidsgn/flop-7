@@ -1,25 +1,21 @@
 import { FlopCard } from "@flop-7/protocol/cards"
-import { roundPlayerSnapshotSchema } from "@flop-7/protocol/snapshots"
-import { z } from "zod"
+import { GamePlayer, RoundPlayerSnapshot } from "@flop-7/protocol/snapshots"
 
 import { GameEvents } from "./game-events"
-import { Player } from "./player"
 import { countCardScore } from "./score"
-
-export type RoundPlayerSnapshot = z.infer<typeof roundPlayerSnapshotSchema>
 
 type RoundPlayerState = RoundPlayerSnapshot["state"]
 
 export class RoundPlayer {
     #events: GameEvents
 
-    #player: Player
+    #player: GamePlayer
     #cards: FlopCard[] = []
     #score = 0
     #state: RoundPlayerState = "active"
     #flopThreeCounter = 0
 
-    constructor(events: GameEvents, player: Player) {
+    constructor(events: GameEvents, player: GamePlayer) {
         this.#events = events
         this.#player = player
     }
