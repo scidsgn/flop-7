@@ -24,10 +24,8 @@ export const App = () => {
     }, [consumeEvent])
 
     return (
-        <div className="fixed inset-0 grid place-items-center">
-            <PlayerProvider value={controllingPlayerId}>
-                <Board />
-            </PlayerProvider>
-        </div>
+        <PlayerProvider value={controllingPlayerId}>
+            <Board />
+        </PlayerProvider>
     )
 }

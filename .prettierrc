@@ -1,5 +1,8 @@
 {
-    "plugins": ["@trivago/prettier-plugin-sort-imports"],
+    "plugins": [
+        "@trivago/prettier-plugin-sort-imports",
+        "prettier-plugin-tailwindcss"
+    ],
     "printWidth": 80,
     "tabWidth": 4,
     "semi": false,
@@ -11,5 +14,6 @@
         "decoratorAutoAccessors",
         "typescript",
         "jsx"
-    ]
+    ],
+    "tailwindFunctions": ["twMerge"]
 }

@@ -1,10 +1,12 @@
+import type { PlayerSelectionRequest } from "@flop-7/protocol/snapshots"
 import { twMerge } from "tailwind-merge"
 import { useShallow } from "zustand/react/shallow"
 
 import { Card } from "./card.tsx"
 import { useGame } from "./game.store.ts"
 import { useControllingPlayerId } from "./player-context.ts"
-import { PlayerRequestStack } from "./player-request-stack.tsx"
+import { PlayerRequestCallout } from "./player-request-callout.tsx"
+import { PlayerSelectButton } from "./player-select-button.tsx"
 
 type BoardPlayerProps = {
     playerId: string
@@ -38,52 +40,74 @@ export const BoardPlayer = ({ playerId, flip }: BoardPlayerProps) => {
                     ?.players.find((p) => p.playerId === playerId)?.cards ?? [],
         ),
     )
+    const selectRequest = useGame(
+        useShallow(
+            (state) =>
+                state.unfulfilledRequests
+                    .filter(
+                        (request) =>
+                            request.targetPlayer.id === controllingPlayerId &&
+                            request.type === "playerSelection" &&
+                            request.players.find((p) => p.id === playerId),
+                    )
+                    .at(0) as PlayerSelectionRequest | undefined,
+        ),
+    )
 
     if (!player) {
         return null
     }
 
     return (
-        <div className="flex flex-col items-center pointer-events-auto">
-            {controllingPlayerId === playerId && (
-                <div className={twMerge(flip && "rotate-180")}>
-                    <PlayerRequestStack playerId={playerId} />
-                </div>
-            )}
-            <div className={twMerge("relative", flip && "rotate-180")}>
+        <div className="pointer-events-auto flex flex-col items-center">
+            <div className={twMerge(flip && "rotate-180")}>
+                <PlayerRequestCallout playerId={playerId} flip={flip} />
+            </div>
+            <div className={twMerge("relative max-w-80", flip && "rotate-180")}>
                 <div
                     className={twMerge(
                         "flex flex-wrap justify-center gap-2",
-                        state !== "active" && "opacity-30",
+                        (state !== "active" || selectRequest) && "opacity-30",
                     )}
                 >
+                    {cards.length === 0 && (
+                        <div className="h-24 w-16 rounded-sm inset-ring-2 inset-ring-neutral-600" />
+                    )}
                     {cards.map((card, i) => (
                         <Card key={i} card={card} />
                     ))}
                 </div>
+
                 {state !== "active" && (
-                    <div className="absolute left-1/2 top-1/2 -translate-1/2 text-center">
+                    <div className="absolute top-1/2 left-1/2 -translate-1/2 text-center">
                         {state === "busted" && (
-                            <span className="uppercase font-bold text-red-400 text-2xl text-shadow-lg text-shadow-neutral-800">
+                            <span className="rounded-sm bg-neutral-950/80 px-2 py-1 text-2xl font-bold text-red-400 uppercase">
                                 Busted!
                             </span>
                         )}
                         {state === "frozen" && (
-                            <span className="uppercase font-bold text-cyan-400 text-2xl text-shadow-lg text-shadow-neutral-800">
+                            <span className="rounded-sm bg-neutral-950/80 px-2 py-1 text-2xl font-bold text-cyan-400 uppercase">
                                 Frozen
                             </span>
                         )}
                         {state === "stayed" && (
-                            <span className="uppercase font-bold text-neutral-400 text-2xl text-shadow-lg text-shadow-neutral-800">
+                            <span className="rounded-sm bg-neutral-950/80 px-2 py-1 text-2xl font-bold text-neutral-400 uppercase">
                                 Stayed
                             </span>
                         )}
                     </div>
                 )}
+
+                {selectRequest && (
+                    <PlayerSelectButton
+                        requestId={selectRequest.id}
+                        playerId={playerId}
+                    />
+                )}
             </div>
             <span
                 className={twMerge(
-                    "p-4 text-neutral-500 font-bold",
+                    "p-4 font-bold text-neutral-500",
                     isCurrent && "text-neutral-50",
                     state === "busted" && "text-red-500",
                     state === "frozen" && "text-cyan-500",
