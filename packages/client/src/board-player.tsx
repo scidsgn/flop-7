@@ -7,9 +7,10 @@ import { PlayerRequestStack } from "./player-request-stack.tsx"
 
 type BoardPlayerProps = {
     playerId: string
+    flip: boolean
 }
 
-export const BoardPlayer = ({ playerId }: BoardPlayerProps) => {
+export const BoardPlayer = ({ playerId, flip }: BoardPlayerProps) => {
     const player = useGame((state) =>
         state.players.find((player) => player.id === playerId),
     )
@@ -42,8 +43,15 @@ export const BoardPlayer = ({ playerId }: BoardPlayerProps) => {
 
     return (
         <div className="flex flex-col items-center pointer-events-auto">
-            <PlayerRequestStack playerId={playerId} />
-            <div className="flex gap-2">
+            <div className={twMerge(flip && "rotate-180")}>
+                <PlayerRequestStack playerId={playerId} />
+            </div>
+            <div
+                className={twMerge(
+                    "flex flex-wrap justify-center gap-2",
+                    flip && "rotate-180",
+                )}
+            >
                 {cards.map((card, i) => (
                     <Card key={i} card={card} />
                 ))}
@@ -56,6 +64,7 @@ export const BoardPlayer = ({ playerId }: BoardPlayerProps) => {
                     state === "frozen" && "text-cyan-500",
                     state === "won" && "text-green-500",
                     state === "stayed" && "italic",
+                    flip && "rotate-180",
                 )}
             >
                 {player.name} ({score})
