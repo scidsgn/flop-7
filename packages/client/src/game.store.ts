@@ -73,7 +73,24 @@ export const useGame = create<GameState>()((set) => ({
             case "playerWon":
             case "playerFrozen":
             case "playerBusted":
-            case "playerStayed":
+            case "playerStayed": {
+                set((state) => ({
+                    rounds: state.rounds.map((round, i) =>
+                        i === state.rounds.length - 1
+                            ? {
+                                  ...round,
+                                  players: round.players.map((player) =>
+                                      player.playerId === event.payload.playerId
+                                          ? event.payload
+                                          : player,
+                                  ),
+                              }
+                            : round,
+                    ),
+                    currentDeckCard: null,
+                }))
+                return
+            }
             case "playerFlopThreeStarted":
             case "playerFlopThreeCounterDecreased": {
                 set((state) => ({
@@ -89,7 +106,6 @@ export const useGame = create<GameState>()((set) => ({
                               }
                             : round,
                     ),
-                    currentDeckCard: null,
                 }))
                 return
             }
