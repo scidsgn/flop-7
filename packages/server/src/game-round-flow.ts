@@ -179,6 +179,8 @@ export class GameRoundFlow implements GameFlow {
             activePlayers,
         )
         if (selectedPlayer === round.currentPlayer) {
+            round.freezePlayer(round.currentPlayer)
+
             if (activePlayers.length === 1) {
                 await this.#finishRound(game, round)
                 return
@@ -187,6 +189,8 @@ export class GameRoundFlow implements GameFlow {
             await this.#nextPlayer(game, round)
             return
         }
+
+        round.freezePlayer(selectedPlayer)
 
         await this.#performRemainingActions(game, round)
     }
