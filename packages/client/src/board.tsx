@@ -19,7 +19,7 @@ export const Board = () => {
     )
 
     return (
-        <div className="fixed top-1/2 left-1/2 size-256 -translate-1/2 scale-[calc(100vmin/1024px)] rounded-full bg-neutral-800">
+        <div className="absolute top-1/2 left-1/2 size-256 -translate-1/2 scale-[calc(100cqmin/1024px)] rounded-full bg-neutral-800">
             {players.map((player, i) => {
                 const angle = (360 * (i - playerOffset)) / players.length
                 const positiveAngle = angle < 0 ? angle + 360 : angle
