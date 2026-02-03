@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 
+import { Board } from "./board.tsx"
 import { GameEventSource } from "./game-event-source.ts"
 import { useGame } from "./game.store.ts"
 
@@ -18,5 +19,9 @@ export const App = () => {
         }
     }, [consumeEvent])
 
-    return <div>dfs</div>
+    return (
+        <div>
+            <Board />
+        </div>
+    )
 }

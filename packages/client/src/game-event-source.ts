@@ -15,6 +15,7 @@ export class GameEventSource {
                 return
             }
 
+            console.info(result.data.type, result.data.payload)
             listener(result.data)
         })
     }

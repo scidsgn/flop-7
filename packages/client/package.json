@@ -12,6 +12,7 @@
         "@flop-7/protocol": "workspace:*",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
+        "tailwind-merge": "^3.4.0",
         "zustand": "^5.0.10"
     },
     "devDependencies": {
