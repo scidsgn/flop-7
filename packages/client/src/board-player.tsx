@@ -50,15 +50,36 @@ export const BoardPlayer = ({ playerId, flip }: BoardPlayerProps) => {
                     <PlayerRequestStack playerId={playerId} />
                 </div>
             )}
-            <div
-                className={twMerge(
-                    "flex flex-wrap justify-center gap-2",
-                    flip && "rotate-180",
+            <div className={twMerge("relative", flip && "rotate-180")}>
+                <div
+                    className={twMerge(
+                        "flex flex-wrap justify-center gap-2",
+                        state !== "active" && "opacity-30",
+                    )}
+                >
+                    {cards.map((card, i) => (
+                        <Card key={i} card={card} />
+                    ))}
+                </div>
+                {state !== "active" && (
+                    <div className="absolute left-1/2 top-1/2 -translate-1/2 text-center">
+                        {state === "busted" && (
+                            <span className="uppercase font-bold text-red-400 text-2xl text-shadow-lg text-shadow-neutral-800">
+                                Busted!
+                            </span>
+                        )}
+                        {state === "frozen" && (
+                            <span className="uppercase font-bold text-cyan-400 text-2xl text-shadow-lg text-shadow-neutral-800">
+                                Frozen
+                            </span>
+                        )}
+                        {state === "stayed" && (
+                            <span className="uppercase font-bold text-neutral-400 text-2xl text-shadow-lg text-shadow-neutral-800">
+                                Stayed
+                            </span>
+                        )}
+                    </div>
                 )}
-            >
-                {cards.map((card, i) => (
-                    <Card key={i} card={card} />
-                ))}
             </div>
             <span
                 className={twMerge(
