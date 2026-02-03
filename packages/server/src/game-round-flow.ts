@@ -40,7 +40,7 @@ export class GameRoundFlow implements GameFlow {
 
         round.decreaseFlopThreeCounter()
 
-        await delay(2000)
+        await delay(1250)
 
         switch (card.type) {
             case "number": {

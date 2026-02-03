@@ -20,6 +20,10 @@ const game = new Game(
             id: "p2",
             name: "Gordon Freeman",
         },
+        {
+            id: "p3",
+            name: "GeForce NOW",
+        },
     ],
     playerRequests,
     events,
