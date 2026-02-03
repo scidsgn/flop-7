@@ -81,7 +81,25 @@ export class Game {
 
         await this.#flow.runRound(this, round)
 
-        console.log(this.#calculateRoundSummary())
+        const summary = this.#calculateRoundSummary()
+        const maxScore = Math.max(...summary.players.map((p) => p.totalScore))
+        if (maxScore < 200) {
+            await this.startRound()
+            return
+        }
+
+        const playersWithMaxScore = summary.players.filter(
+            (p) => p.totalScore === maxScore,
+        )
+        if (playersWithMaxScore.length > 1) {
+            await this.startRound()
+            return
+        }
+
+        this.#events.emit({
+            type: "gameFinished",
+            payload: this.snapshot,
+        })
     }
 
     #calculateRoundSummary(): GameSummary {
