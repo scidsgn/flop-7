@@ -76,6 +76,7 @@ export const gameSummarySchema = z
                 totalScore: z.number(),
             }),
         ),
+        winner: gamePlayerSchema.optional(),
     })
     .meta({ title: "GameSummary" })
 

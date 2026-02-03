@@ -82,24 +82,15 @@ export class Game {
         await this.#flow.runRound(this, round)
 
         const summary = this.#calculateRoundSummary()
-        const maxScore = Math.max(...summary.players.map((p) => p.totalScore))
-        if (maxScore < 200) {
-            await this.startRound()
+        if (summary.winner) {
+            this.#events.emit({
+                type: "gameFinished",
+                payload: this.snapshot,
+            })
             return
         }
 
-        const playersWithMaxScore = summary.players.filter(
-            (p) => p.totalScore === maxScore,
-        )
-        if (playersWithMaxScore.length > 1) {
-            await this.startRound()
-            return
-        }
-
-        this.#events.emit({
-            type: "gameFinished",
-            payload: this.snapshot,
-        })
+        await this.startRound()
     }
 
     #calculateRoundSummary(): GameSummary {
@@ -114,11 +105,24 @@ export class Game {
             }
         }
 
+        const maxTotal = Math.max(...totals.values())
+        const playerIdsWithMaxScore = [...totals.entries()]
+            .filter(([, score]) => score === maxTotal)
+            .map(([id]) => id)
+
+        let winner: GamePlayer | undefined = undefined
+        if (maxTotal >= 200 && playerIdsWithMaxScore.length === 1) {
+            winner = this.#players.find(
+                (player) => player.id === playerIdsWithMaxScore[0],
+            )
+        }
+
         return {
             players: [...totals.entries()].map(([id, score]) => ({
                 playerId: id,
                 totalScore: score,
             })),
+            winner,
         }
     }
 }
