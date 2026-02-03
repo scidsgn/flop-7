@@ -3,6 +3,7 @@ import { useShallow } from "zustand/react/shallow"
 
 import { Card } from "./card.tsx"
 import { useGame } from "./game.store.ts"
+import { useControllingPlayerId } from "./player-context.ts"
 import { PlayerRequestStack } from "./player-request-stack.tsx"
 
 type BoardPlayerProps = {
@@ -11,6 +12,7 @@ type BoardPlayerProps = {
 }
 
 export const BoardPlayer = ({ playerId, flip }: BoardPlayerProps) => {
+    const controllingPlayerId = useControllingPlayerId()
     const player = useGame((state) =>
         state.players.find((player) => player.id === playerId),
     )
@@ -43,9 +45,11 @@ export const BoardPlayer = ({ playerId, flip }: BoardPlayerProps) => {
 
     return (
         <div className="flex flex-col items-center pointer-events-auto">
-            <div className={twMerge(flip && "rotate-180")}>
-                <PlayerRequestStack playerId={playerId} />
-            </div>
+            {controllingPlayerId === playerId && (
+                <div className={twMerge(flip && "rotate-180")}>
+                    <PlayerRequestStack playerId={playerId} />
+                </div>
+            )}
             <div
                 className={twMerge(
                     "flex flex-wrap justify-center gap-2",

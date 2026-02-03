@@ -1,5 +1,6 @@
 import { FlopCard, FlopCardOfType } from "@flop-7/protocol/cards"
 
+import { delay } from "./delay"
 import { Game, GameFlow } from "./game"
 import { Round } from "./round"
 
@@ -38,6 +39,8 @@ export class GameRoundFlow implements GameFlow {
         const card = game.deck.grab()
 
         round.decreaseFlopThreeCounter()
+
+        await delay(2000)
 
         switch (card.type) {
             case "number": {

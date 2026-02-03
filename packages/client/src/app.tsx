@@ -1,10 +1,14 @@
+import { useQueryState } from "nuqs"
 import { useEffect } from "react"
 
 import { Board } from "./board.tsx"
 import { GameEventSource } from "./game-event-source.ts"
 import { useGame } from "./game.store.ts"
+import { PlayerProvider } from "./player-context.ts"
 
 export const App = () => {
+    const [controllingPlayerId] = useQueryState("player")
+
     const consumeEvent = useGame((state) => state.consumeEvent)
 
     useEffect(() => {
@@ -20,8 +24,10 @@ export const App = () => {
     }, [consumeEvent])
 
     return (
-        <div>
-            <Board />
+        <div className="fixed inset-0 grid place-items-center">
+            <PlayerProvider value={controllingPlayerId}>
+                <Board />
+            </PlayerProvider>
         </div>
     )
 }

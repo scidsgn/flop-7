@@ -48,5 +48,9 @@ export const Card = ({ card }: CardProps) => {
 }
 
 const CardImg = (props: ImgHTMLAttributes<HTMLImageElement>) => (
-    <img className={twMerge("h-24", props.className)} {...props} />
+    <img
+        className={twMerge("w-16 h-24", props.className)}
+        {...props}
+        alt={props.alt}
+    />
 )
