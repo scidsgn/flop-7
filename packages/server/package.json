@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "start": "tsx src/main.ts",
         "serve": "tsx src/server.ts",
         "lint": "eslint ."
     },
