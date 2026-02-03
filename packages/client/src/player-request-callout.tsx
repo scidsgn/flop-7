@@ -57,14 +57,6 @@ export const PlayerRequestCallout = ({
             {firstRequest.reason === "freeze" && (
                 <span>Select a player to freeze!</span>
             )}
-            <div
-                className={twMerge(
-                    "absolute bottom-0 left-1/2 size-4 -translate-x-1/2 rotate-45 bg-neutral-50",
-                    flip
-                        ? "top-0 -translate-y-1/2"
-                        : "bottom-0 translate-y-1/2",
-                )}
-            />
         </div>
     )
 }

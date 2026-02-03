@@ -107,7 +107,7 @@ export const BoardPlayer = ({ playerId, flip }: BoardPlayerProps) => {
             </div>
             <span
                 className={twMerge(
-                    "p-4 font-bold text-neutral-500",
+                    "p-3 text-xl font-bold text-neutral-500",
                     isCurrent && "text-neutral-50",
                     state === "busted" && "text-red-500",
                     state === "frozen" && "text-cyan-500",
