@@ -15,7 +15,7 @@ export const PointsSummary = () => {
             <table className="text-center">
                 <thead className="text-sm font-bold text-neutral-500">
                     {players.map((player) => (
-                        <td key={player.id}>{player.name}</td>
+                        <th key={player.id}>{player.name}</th>
                     ))}
                 </thead>
                 <tbody>
