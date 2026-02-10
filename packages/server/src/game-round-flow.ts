@@ -137,11 +137,15 @@ export class GameRoundFlow implements GameFlow {
     async #stay(game: Game, round: Round) {
         round.markCurrentPlayerStayed()
 
+        await delay(750)
+
         await this.#nextPlayer(game, round)
     }
 
     async #bust(game: Game, round: Round) {
         round.markCurrentPlayerBusted()
+
+        await delay(1500)
 
         await this.#nextPlayer(game, round)
     }
@@ -172,6 +176,8 @@ export class GameRoundFlow implements GameFlow {
             // Freeze player
             round.freezePlayer(round.currentPlayer)
 
+            await delay(1000)
+
             await this.#finishRound(game, round)
             return
         }
@@ -185,6 +191,8 @@ export class GameRoundFlow implements GameFlow {
             round.freezePlayer(round.currentPlayer)
 
             if (activePlayers.length === 1) {
+                await delay(1000)
+
                 await this.#finishRound(game, round)
                 return
             }

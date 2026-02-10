@@ -1,7 +1,7 @@
 import { twMerge } from "tailwind-merge"
 import { useShallow } from "zustand/react/shallow"
 
-import { useGame } from "./game.store.ts"
+import { useGame } from "../game.store.ts"
 import { useControllingPlayerId } from "./player-context.ts"
 
 type PlayerRequestCalloutProps = {
@@ -15,12 +15,13 @@ export const PlayerRequestCallout = ({
 }: PlayerRequestCalloutProps) => {
     const controllingPlayerId = useControllingPlayerId()
     const requests = useGame(
-        useShallow((state) =>
-            state.unfulfilledRequests.filter(
-                (request) =>
-                    request.targetPlayer.id === playerId &&
-                    request.type === "playerSelection",
-            ),
+        useShallow(
+            (state) =>
+                state.game?.unfulfilledRequests.filter(
+                    (request) =>
+                        request.targetPlayer.id === playerId &&
+                        request.type === "playerSelection",
+                ) ?? [],
         ),
     )
     const firstRequest = requests.at(0)

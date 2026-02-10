@@ -100,3 +100,10 @@ export const gameSnapshotSchema = z
     .meta({ title: "GameSnapshot" })
 
 export type GameSnapshot = z.infer<typeof gameSnapshotSchema>
+
+export const roomSnapshotSchema = z.object({
+    players: z.array(gamePlayerSchema),
+    hasGame: z.boolean(),
+})
+
+export type RoomSnapshot = z.infer<typeof roomSnapshotSchema>

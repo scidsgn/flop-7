@@ -1,3 +1,4 @@
+import { useGame } from "../game.store.ts"
 import { useControllingPlayerId } from "./player-context.ts"
 
 type PlayerSelectButtonProps = {
@@ -9,11 +10,18 @@ export const PlayerSelectButton = ({
     requestId,
     playerId,
 }: PlayerSelectButtonProps) => {
+    const serverUrl = useGame((state) => state.serverUrl)
+
     const controllingPlayerId = useControllingPlayerId()
 
     const respond = async () => {
-        await fetch("http://localhost:3000/game/requests", {
+        if (!serverUrl) {
+            return
+        }
+
+        await fetch(`${serverUrl}/game/requests`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },

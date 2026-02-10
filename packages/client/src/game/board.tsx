@@ -1,13 +1,13 @@
 import { useMemo } from "react"
 import { useShallow } from "zustand/react/shallow"
 
+import { useGame } from "../game.store.ts"
 import { BoardDeck } from "./board-deck.tsx"
 import { BoardPlayer } from "./board-player.tsx"
-import { useGame } from "./game.store.ts"
 import { useControllingPlayerId } from "./player-context.ts"
 
 export const Board = () => {
-    const players = useGame(useShallow((state) => state.players))
+    const players = useGame(useShallow((state) => state.game?.players ?? []))
     const controllingPlayerId = useControllingPlayerId()
 
     const playerOffset = useMemo(

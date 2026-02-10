@@ -6,7 +6,7 @@ import {
 
 import { Deck } from "./deck"
 import { GameEvents } from "./game-events"
-import { PlayerRequests } from "./player-requests/player-requests"
+import { ServerPlayerRequests } from "./player-requests/server-player-requests"
 import { Round } from "./round"
 
 export interface GameFlow {
@@ -20,13 +20,13 @@ export class Game {
     #deck: Deck
     #rounds: Round[] = []
 
-    #playerRequests: PlayerRequests
+    #playerRequests: ServerPlayerRequests
 
     #flow: GameFlow
 
     constructor(
         players: GamePlayer[],
-        playerRequests: PlayerRequests,
+        playerRequests: ServerPlayerRequests,
         gameEvents: GameEvents,
         flow: GameFlow,
     ) {

@@ -2,9 +2,11 @@ import { z } from "zod"
 
 import { flopCardSchema } from "./cards"
 import {
+    gamePlayerSchema,
     gameSnapshotSchema,
     playerChoiceRequestSchema,
     playerSelectionRequestSchema,
+    roomSnapshotSchema,
     roundPlayerSnapshotSchema,
     roundSnapshotSchema,
 } from "./snapshots"
@@ -71,3 +73,13 @@ export const gameEventsSchema = z
     .meta({ title: "GameEvent" })
 
 export type GameEvent = z.infer<typeof gameEventsSchema>
+
+export const roomEventsSchema = z.discriminatedUnion("type", [
+    eventSchema("playerJoined", gamePlayerSchema),
+    eventSchema("playerLeft", gamePlayerSchema),
+    eventSchema("gameStarted", gameSnapshotSchema),
+    eventSchema("gameEnded", gameSnapshotSchema),
+    eventSchema("initSnapshot", roomSnapshotSchema),
+])
+
+export type RoomEvent = z.infer<typeof roomEventsSchema>

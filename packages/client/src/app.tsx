@@ -1,46 +1,46 @@
+import { roomEventsSchema } from "@flop-7/protocol/events"
 import { useEffect } from "react"
 
-import { Board } from "./board.tsx"
-import { GameEventSource } from "./game-event-source.ts"
 import { useGame } from "./game.store.ts"
-import { PlayerProvider } from "./player-context.ts"
-import { PointsSummary } from "./points-summary.tsx"
+import { Game } from "./game/game.tsx"
+import { RoomLobby } from "./room/room-lobby.tsx"
+import { ServerConnect } from "./server-connect.tsx"
+import { TypedEventSource } from "./typed-event-source.ts"
 
 export const App = () => {
-    const consumeEvent = useGame((state) => state.consumeEvent)
+    const serverUrl = useGame((state) => state.serverUrl)
+
+    const room = useGame((state) => state.room)
+    const consumeRoomEvent = useGame((state) => state.consumeRoomEvent)
 
     useEffect(() => {
-        const events = new GameEventSource("http://localhost:3000/game/events")
+        if (!serverUrl) {
+            return
+        }
 
-        events.addEventListener((event) => {
-            consumeEvent(event)
-        })
+        const events = new TypedEventSource(
+            `${serverUrl}/room/events`,
+            roomEventsSchema,
+        )
+
+        events.addEventListener((event) => consumeRoomEvent(event))
 
         return () => {
             events.close()
         }
-    }, [consumeEvent])
+    }, [serverUrl, consumeRoomEvent])
 
-    return (
-        <div className="fixed inset-2 grid grid-cols-[auto_1fr_1fr_1fr] gap-2">
-            <div className="w-64">
-                <PointsSummary />
-            </div>
-            <div className="@container-[size] relative rounded-lg bg-neutral-900">
-                <PlayerProvider value="p1">
-                    <Board />
-                </PlayerProvider>
-            </div>
-            <div className="@container-[size] relative rounded-lg bg-neutral-900">
-                <PlayerProvider value="p2">
-                    <Board />
-                </PlayerProvider>
-            </div>
-            <div className="@container-[size] relative rounded-lg bg-neutral-900">
-                <PlayerProvider value="p3">
-                    <Board />
-                </PlayerProvider>
-            </div>
-        </div>
-    )
+    if (!serverUrl) {
+        return <ServerConnect />
+    }
+
+    if (!room) {
+        return null
+    }
+
+    if (!room.hasGame) {
+        return <RoomLobby />
+    }
+
+    return <Game />
 }

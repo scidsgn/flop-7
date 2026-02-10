@@ -2,8 +2,8 @@ import type { PlayerSelectionRequest } from "@flop-7/protocol/snapshots"
 import { twMerge } from "tailwind-merge"
 import { useShallow } from "zustand/react/shallow"
 
+import { useGame } from "../game.store.ts"
 import { Card } from "./card.tsx"
-import { useGame } from "./game.store.ts"
 import { useControllingPlayerId } from "./player-context.ts"
 import { PlayerRequestCallout } from "./player-request-callout.tsx"
 import { PlayerSelectButton } from "./player-select-button.tsx"
@@ -16,26 +16,28 @@ type BoardPlayerProps = {
 export const BoardPlayer = ({ playerId, flip }: BoardPlayerProps) => {
     const controllingPlayerId = useControllingPlayerId()
     const player = useGame((state) =>
-        state.players.find((player) => player.id === playerId),
+        state.game?.players?.find((player) => player.id === playerId),
     )
     const isCurrent = useGame(
-        (state) => state.rounds.at(-1)?.currentPlayerId === playerId,
+        (state) => state.game?.rounds?.at(-1)?.currentPlayerId === playerId,
     )
 
     const score = useGame(
         (state) =>
-            state.rounds.at(-1)?.players.find((p) => p.playerId === playerId)
-                ?.score ?? 0,
+            state.game?.rounds
+                ?.at(-1)
+                ?.players?.find((p) => p.playerId === playerId)?.score ?? 0,
     )
     const state = useGame(
         (state) =>
-            state.rounds.at(-1)?.players.find((p) => p.playerId === playerId)
-                ?.state,
+            state.game?.rounds
+                .at(-1)
+                ?.players.find((p) => p.playerId === playerId)?.state,
     )
     const cards = useGame(
         useShallow(
             (state) =>
-                state.rounds
+                state.game?.rounds
                     .at(-1)
                     ?.players.find((p) => p.playerId === playerId)?.cards ?? [],
         ),
@@ -43,7 +45,7 @@ export const BoardPlayer = ({ playerId, flip }: BoardPlayerProps) => {
     const selectRequest = useGame(
         useShallow(
             (state) =>
-                state.unfulfilledRequests
+                state.game?.unfulfilledRequests
                     .filter(
                         (request) =>
                             request.targetPlayer.id === controllingPlayerId &&

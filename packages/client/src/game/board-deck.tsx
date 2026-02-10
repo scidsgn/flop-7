@@ -2,18 +2,19 @@ import type { PlayerChoiceRequest } from "@flop-7/protocol/snapshots"
 import { twMerge } from "tailwind-merge"
 import { useShallow } from "zustand/react/shallow"
 
+import { useGame } from "../game.store.ts"
 import { Card } from "./card.tsx"
-import { useGame } from "./game.store.ts"
 import { useControllingPlayerId } from "./player-context.ts"
 
 export const BoardDeck = () => {
-    const currentDeckCard = useGame((state) => state.currentDeckCard)
+    const serverUrl = useGame((state) => state.serverUrl)
+    const currentDeckCard = useGame((state) => state.game?.currentDeckCard)
     const controllingPlayerId = useControllingPlayerId()
 
     const hitRequest = useGame(
         useShallow(
             (state) =>
-                state.unfulfilledRequests
+                state.game?.unfulfilledRequests
                     .filter(
                         (request) =>
                             request.targetPlayer.id === controllingPlayerId &&
@@ -24,7 +25,7 @@ export const BoardDeck = () => {
     )
 
     const respond = async (choice: string) => {
-        if (!hitRequest || !controllingPlayerId) {
+        if (!hitRequest || !controllingPlayerId || !serverUrl) {
             return
         }
 
@@ -32,8 +33,9 @@ export const BoardDeck = () => {
             return
         }
 
-        await fetch("http://localhost:3000/game/requests", {
+        await fetch(`${serverUrl}/game/requests`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },

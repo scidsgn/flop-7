@@ -1,15 +1,17 @@
-import { type GameEvent, gameEventsSchema } from "@flop-7/protocol/events"
+import type { ZodType } from "zod"
 
-export class GameEventSource {
+export class TypedEventSource<T extends { type: string; payload: unknown }> {
+    #schema: ZodType<T>
     #eventSource: EventSource
 
-    constructor(url: string) {
+    constructor(url: string, schema: ZodType<T>) {
+        this.#schema = schema
         this.#eventSource = new EventSource(url)
     }
 
-    addEventListener(listener: (event: GameEvent) => void) {
+    addEventListener(listener: (event: T) => void) {
         this.#eventSource.addEventListener("message", (e) => {
-            const result = gameEventsSchema.safeParse(JSON.parse(e.data))
+            const result = this.#schema.safeParse(JSON.parse(e.data))
             if (!result.success) {
                 console.error(`Invalid data for event:`, e.data)
                 return

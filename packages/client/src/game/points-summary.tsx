@@ -1,11 +1,11 @@
 import { twMerge } from "tailwind-merge"
 import { useShallow } from "zustand/react/shallow"
 
-import { useGame } from "./game.store.ts"
+import { useGame } from "../game.store.ts"
 
 export const PointsSummary = () => {
-    const players = useGame(useShallow((state) => state.players))
-    const rounds = useGame(useShallow((state) => state.rounds))
+    const players = useGame(useShallow((state) => state.game?.players ?? []))
+    const rounds = useGame(useShallow((state) => state.game?.rounds ?? []))
 
     return (
         <>
