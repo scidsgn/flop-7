@@ -8,6 +8,7 @@ import { RuleSystem } from "../rule-system"
 export class Flop7RuleSystem implements RuleSystem {
     get info() {
         return {
+            id: "flop7",
             name: "Flop 7",
             assets: {
                 cardBack: "/flop-7/back.svg",

@@ -8,6 +8,7 @@
     "exports": {
         "./cards": "./src/cards.ts",
         "./events": "./src/events.ts",
+        "./responses": "./src/responses.ts",
         "./snapshots": "./src/snapshots.ts"
     }
 }

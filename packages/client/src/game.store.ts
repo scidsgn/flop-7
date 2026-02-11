@@ -1,12 +1,12 @@
 import type { FlopCard } from "@flop-7/protocol/cards"
 import type { GameEvent, RoomEvent } from "@flop-7/protocol/events"
+import type { RuleSystemInfo } from "@flop-7/protocol/responses"
 import type {
     DeckStats,
     GamePlayer,
     GameSummary,
     PlayerRequest,
     RoundSnapshot,
-    RuleSystemInfo,
 } from "@flop-7/protocol/snapshots"
 import { create } from "zustand"
 

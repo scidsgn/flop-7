@@ -5,7 +5,8 @@ import { Emitter } from "@scidsgn/std"
 import { Game } from "./game"
 import { GameEvents } from "./game-events"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
-import { Flop7RuleSystem } from "./rule-systems/flop7-rule-system"
+import { RuleSystem } from "./rule-system"
+
 
 type RoomPlayer = {
     id: string
@@ -66,14 +67,14 @@ export class Room {
         )
     }
 
-    startGame() {
+    startGame(ruleSystem: RuleSystem) {
         const events = new GameEvents()
         const playerRequests = new ServerPlayerRequests(events)
         const game = new Game(
             this.#players.map(({ id, name }) => ({ id, name })),
             playerRequests,
             events,
-            new Flop7RuleSystem(),
+            ruleSystem,
         )
 
         this.#game = game

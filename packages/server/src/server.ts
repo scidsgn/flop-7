@@ -1,17 +1,30 @@
 import cors from "@elysiajs/cors"
 import node from "@elysiajs/node"
 import { GameEvent, RoomEvent } from "@flop-7/protocol/events"
+import { ruleSystemsResponseSchema } from "@flop-7/protocol/responses"
 import Elysia, { file, sse } from "elysia"
 import { isAbsolute, join, relative, resolve } from "node:path"
 import { z } from "zod"
 
 import { Room } from "./room"
+import { Flop7RuleSystem } from "./rule-systems/flop7-rule-system"
+
+const availableRuleSystems = [new Flop7RuleSystem()]
 
 const room = new Room()
 
 new Elysia({ adapter: node() })
     .use(cors())
     .get("/info", ({ status }) => status(200))
+    .get(
+        "/rule-systems",
+        () => {
+            return {
+                ruleSystems: availableRuleSystems.map((system) => system.info),
+            }
+        },
+        { response: ruleSystemsResponseSchema },
+    )
     .get("/assets/*", ({ params, status }) => {
         const rootPath = join(__dirname, "../assets")
         const assetPath = params["*"]
@@ -75,16 +88,31 @@ new Elysia({ adapter: node() })
             })
         }
     })
-    .post("/room/game", ({ status }) => {
-        // TODO nasty
-        if (room.snapshot.players.length === 0) {
-            return status(400)
-        }
+    .post(
+        "/room/game",
+        ({ body: { ruleSystemId }, status }) => {
+            // TODO nasty
+            if (room.snapshot.players.length === 0) {
+                return status(400)
+            }
 
-        room.startGame()
+            const ruleSystem = availableRuleSystems.find(
+                (system) => system.info.id === ruleSystemId,
+            )
+            if (!ruleSystem) {
+                return status(400)
+            }
 
-        return status(200)
-    })
+            room.startGame(ruleSystem)
+
+            return status(200)
+        },
+        {
+            body: z.object({
+                ruleSystemId: z.string(),
+            }),
+        },
+    )
     .delete("/room/game", ({ status }) => {
         // TODO nasty
         if (!room.game) {

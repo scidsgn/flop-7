@@ -1,5 +1,5 @@
 import { FlopCard } from "@flop-7/protocol/cards"
-import { RuleSystemInfo } from "@flop-7/protocol/snapshots"
+import { RuleSystemInfo } from "@flop-7/protocol/responses"
 
 import { Game } from "./game"
 import { Round } from "./round"

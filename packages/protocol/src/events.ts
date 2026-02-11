@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 import { flopCardSchema } from "./cards"
+import { ruleSystemInfoSchema } from "./responses"
 import {
     gamePlayerSchema,
     gameSnapshotSchema,
@@ -9,7 +10,6 @@ import {
     roomSnapshotSchema,
     roundPlayerSnapshotSchema,
     roundSnapshotSchema,
-    ruleSystemInfoSchema,
 } from "./snapshots"
 
 function eventSchema<Type extends string, Payload>(
