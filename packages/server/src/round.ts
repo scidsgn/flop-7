@@ -20,7 +20,7 @@ export class Round {
         this.#events = game.events
 
         this.#players = game.players.map(
-            (player) => new RoundPlayer(game.events, player),
+            (player) => new RoundPlayer(game, player),
         )
         // TODO ew
         this.#currentPlayer = this.#players[0]!

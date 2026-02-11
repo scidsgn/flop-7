@@ -1,12 +1,42 @@
 import { FlopCard, FlopCardOfType } from "@flop-7/protocol/cards"
 
-import { delay } from "./delay"
-import { Game, GameFlow } from "./game"
-import { Round } from "./round"
+import { delay } from "../delay"
+import { Game } from "../game"
+import { Round } from "../round"
+import { RuleSystem } from "../rule-system"
 
-export class GameRoundFlow implements GameFlow {
+export class Flop7RuleSystem implements RuleSystem {
     async runRound(game: Game, round: Round): Promise<void> {
         await this.#startTurn(game, round)
+    }
+
+    calculateScore(cards: FlopCard[]) {
+        let sum = 0
+
+        const numberCards: FlopCardOfType<"number">[] = cards.filter(
+            (card) => card.type === "number",
+        )
+        const addModifierCards: FlopCardOfType<"addModifier">[] = cards.filter(
+            (card) => card.type === "addModifier",
+        )
+        const multiplyModifierCards: FlopCardOfType<"multiplyModifier">[] =
+            cards.filter((card) => card.type === "multiplyModifier")
+
+        for (const card of numberCards) {
+            sum += card.value
+        }
+        for (const card of multiplyModifierCards) {
+            sum *= card.multiplier
+        }
+        for (const card of addModifierCards) {
+            sum += card.add
+        }
+
+        if (numberCards.length === 7) {
+            sum += 15
+        }
+
+        return sum
     }
 
     async #startTurn(game: Game, round: Round): Promise<void> {

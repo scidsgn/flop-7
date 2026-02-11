@@ -1,13 +1,15 @@
 import { FlopCard } from "@flop-7/protocol/cards"
 import { GamePlayer, RoundPlayerSnapshot } from "@flop-7/protocol/snapshots"
 
+import { Game } from "./game"
 import { GameEvents } from "./game-events"
-import { countCardScore } from "./score"
+import { RuleSystem } from "./rule-system"
 
 type RoundPlayerState = RoundPlayerSnapshot["state"]
 
 export class RoundPlayer {
     #events: GameEvents
+    #ruleSystem: RuleSystem
 
     #player: GamePlayer
     #cards: FlopCard[] = []
@@ -15,8 +17,9 @@ export class RoundPlayer {
     #state: RoundPlayerState = "active"
     #flopThreeCounter = 0
 
-    constructor(events: GameEvents, player: GamePlayer) {
-        this.#events = events
+    constructor(game: Game, player: GamePlayer) {
+        this.#events = game.events
+        this.#ruleSystem = game.ruleSystem
         this.#player = player
     }
 
@@ -54,7 +57,7 @@ export class RoundPlayer {
         this.#ensureActive()
 
         this.#cards = [...this.#cards, card]
-        this.#score = countCardScore(this.#cards)
+        this.#score = this.#ruleSystem.calculateScore(this.#cards)
 
         this.#events.emit({
             type: "playerCardAdded",
@@ -66,7 +69,7 @@ export class RoundPlayer {
         this.#ensureActive()
 
         this.#cards = this.#cards.filter((c) => c !== card)
-        this.#score = countCardScore(this.#cards)
+        this.#score = this.#ruleSystem.calculateScore(this.#cards)
 
         this.#events.emit({
             type: "playerCardDiscarded",

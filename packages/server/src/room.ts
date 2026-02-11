@@ -4,8 +4,8 @@ import { Emitter } from "@scidsgn/std"
 
 import { Game } from "./game"
 import { GameEvents } from "./game-events"
-import { GameRoundFlow } from "./game-round-flow"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
+import { Flop7RuleSystem } from "./rule-systems/flop7-rule-system"
 
 type RoomPlayer = {
     id: string
@@ -73,7 +73,7 @@ export class Room {
             this.#players.map(({ id, name }) => ({ id, name })),
             playerRequests,
             events,
-            new GameRoundFlow(),
+            new Flop7RuleSystem(),
         )
 
         this.#game = game

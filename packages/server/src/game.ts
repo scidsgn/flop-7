@@ -8,10 +8,7 @@ import { Deck } from "./deck"
 import { GameEvents } from "./game-events"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
 import { Round } from "./round"
-
-export interface GameFlow {
-    runRound(game: Game, round: Round): Promise<void>
-}
+import { RuleSystem } from "./rule-system"
 
 export class Game {
     #players: GamePlayer[]
@@ -22,18 +19,18 @@ export class Game {
 
     #playerRequests: ServerPlayerRequests
 
-    #flow: GameFlow
+    #ruleSystem: RuleSystem
 
     constructor(
         players: GamePlayer[],
         playerRequests: ServerPlayerRequests,
         gameEvents: GameEvents,
-        flow: GameFlow,
+        flow: RuleSystem,
     ) {
         this.#players = players
         this.#playerRequests = playerRequests
         this.#events = gameEvents
-        this.#flow = flow
+        this.#ruleSystem = flow
 
         this.#deck = new Deck(this.#events)
 
@@ -42,6 +39,10 @@ export class Game {
 
     get events() {
         return this.#events
+    }
+
+    get ruleSystem() {
+        return this.#ruleSystem
     }
 
     get deck() {
@@ -79,7 +80,7 @@ export class Game {
             payload: this.snapshot,
         })
 
-        await this.#flow.runRound(this, round)
+        await this.#ruleSystem.runRound(this, round)
 
         const summary = this.#calculateRoundSummary()
         if (summary.winner) {
