@@ -2,49 +2,17 @@ import type { FlopCard } from "@flop-7/protocol/cards"
 import type { ImgHTMLAttributes } from "react"
 import { twMerge } from "tailwind-merge"
 
+import { useGame } from "../game.store.ts"
+
 type CardProps = {
     card: FlopCard
 }
 
 export const Card = ({ card }: CardProps) => {
-    if (card.type === "number") {
-        return (
-            <CardImg
-                src={`/cards/flop-7/number${card.value}.svg`}
-                alt={`Number ${card.value} card`}
-            />
-        )
-    }
-    if (card.type === "addModifier") {
-        return (
-            <CardImg
-                src={`/cards/flop-7/add${card.add}.svg`}
-                alt={`Add ${card.add} card`}
-            />
-        )
-    }
-    if (card.type === "multiplyModifier") {
-        return (
-            <CardImg
-                src={`/cards/flop-7/multiply${card.multiplier}.svg`}
-                alt={`Multiply by ${card.multiplier} card`}
-            />
-        )
-    }
-    if (card.type === "secondChance") {
-        return (
-            <CardImg
-                src="/cards/flop-7/secondChance.svg"
-                alt={`Second chance card`}
-            />
-        )
-    }
-    if (card.type === "freeze") {
-        return <CardImg src="/cards/flop-7/freeze.svg" alt={`Freeze card`} />
-    }
-    if (card.type === "flopThree") {
-        return <CardImg src="/cards/flop-7/flop3.svg" alt={`Flop three card`} />
-    }
+    const serverUrl = useGame((state) => state.serverUrl)
+    if (!serverUrl) return null
+
+    return <CardImg src={`${serverUrl}/assets${card.asset}`} />
 }
 
 const CardImg = (props: ImgHTMLAttributes<HTMLImageElement>) => (

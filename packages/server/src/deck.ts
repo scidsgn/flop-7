@@ -4,28 +4,48 @@ import { GameEvents } from "./game-events"
 
 const fullDeck: FlopCard[] = []
 
-fullDeck.push({ type: "number", value: 0 })
+fullDeck.push({
+    type: "number",
+    value: 0,
+    asset: `/flop-7/number0.svg`,
+})
 for (let i = 1; i <= 12; i++) {
     for (let j = 0; j < i; j++) {
         fullDeck.push({
             type: "number",
             value: i as FlopCardOfType<"number">["value"],
+            asset: `/flop-7/number${i}.svg`,
         })
     }
 }
 
 for (let i = 1; i <= 3; i++) {
-    fullDeck.push({ type: "freeze" })
-    fullDeck.push({ type: "flopThree" })
-    fullDeck.push({ type: "secondChance" })
+    fullDeck.push({ type: "freeze", asset: "/flop-7/freeze.svg" })
+    fullDeck.push({ type: "flopThree", asset: "/flop-7/flop3.svg" })
+    fullDeck.push({
+        type: "secondChance",
+        asset: "/flop-7/secondChance.svg",
+    })
 }
 
-fullDeck.push({ type: "addModifier", add: 2 })
-fullDeck.push({ type: "addModifier", add: 4 })
-fullDeck.push({ type: "addModifier", add: 6 })
-fullDeck.push({ type: "addModifier", add: 8 })
-fullDeck.push({ type: "addModifier", add: 10 })
-fullDeck.push({ type: "multiplyModifier", multiplier: 2 })
+fullDeck.push({
+    type: "addModifier",
+    add: 2,
+    asset: "/flop-7/add2.svg",
+})
+fullDeck.push({ type: "addModifier", add: 4, asset: "/flop-7/add4.svg" })
+fullDeck.push({ type: "addModifier", add: 6, asset: "/flop-7/add6.svg" })
+fullDeck.push({ type: "addModifier", add: 8, asset: "/flop-7/add8.svg" })
+fullDeck.push({
+    type: "addModifier",
+    add: 10,
+    asset: "/flop-7/add10.svg",
+})
+fullDeck.push({
+    type: "multiplyModifier",
+    multiplier: 2,
+    asset: "/flop-7/multiply2.svg",
+})
 
 export const fullDeckSize = fullDeck.length
 

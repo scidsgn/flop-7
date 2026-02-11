@@ -1,6 +1,7 @@
 import cors from "@elysiajs/cors"
 import node from "@elysiajs/node"
-import Elysia, { sse } from "elysia"
+import Elysia, { file, sse } from "elysia"
+import { isAbsolute, join, relative, resolve } from "node:path"
 import { z } from "zod"
 
 import { Room } from "./room"
@@ -10,6 +11,18 @@ const room = new Room()
 new Elysia({ adapter: node() })
     .use(cors())
     .get("/info", ({ status }) => status(200))
+    .get("/assets/*", ({ params, status }) => {
+        const rootPath = join(__dirname, "../assets")
+        const assetPath = params["*"]
+        const fullAssetPath = resolve(rootPath, assetPath)
+
+        const relativePath = relative(rootPath, fullAssetPath)
+        if (relativePath.startsWith("..") || isAbsolute(relativePath)) {
+            return status(404)
+        }
+
+        return file(fullAssetPath)
+    })
     .post(
         "/room/connect",
         ({ body: { name }, cookie: { Secret }, status }) => {
