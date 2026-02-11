@@ -1,5 +1,6 @@
 import cors from "@elysiajs/cors"
 import node from "@elysiajs/node"
+import { GameEvent, RoomEvent } from "@flop-7/protocol/events"
 import Elysia, { file, sse } from "elysia"
 import { isAbsolute, join, relative, resolve } from "node:path"
 import { z } from "zod"
@@ -64,13 +65,13 @@ new Elysia({ adapter: node() })
             data: {
                 type: "initSnapshot",
                 payload: room.snapshot,
-            },
+            } satisfies RoomEvent,
         })
 
         for await (const event of room.eventStream) {
             yield sse({
                 event: "message",
-                data: event,
+                data: event satisfies RoomEvent,
             })
         }
     })
@@ -104,14 +105,17 @@ new Elysia({ adapter: node() })
             event: "message",
             data: {
                 type: "initSnapshot",
-                payload: game.snapshot,
-            },
+                payload: {
+                    ...game.snapshot,
+                    ruleSystem: game.ruleSystem.info,
+                },
+            } satisfies GameEvent,
         })
 
         for await (const event of game.events.asyncStream) {
             yield sse({
                 event: "message",
-                data: event,
+                data: event satisfies GameEvent,
             })
         }
     })

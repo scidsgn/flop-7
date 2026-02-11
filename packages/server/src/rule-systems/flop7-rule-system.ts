@@ -6,6 +6,15 @@ import { Round } from "../round"
 import { RuleSystem } from "../rule-system"
 
 export class Flop7RuleSystem implements RuleSystem {
+    get info() {
+        return {
+            name: "Flop 7",
+            assets: {
+                cardBack: "/flop-7/back.svg",
+            },
+        }
+    }
+
     async runRound(game: Game, round: Round): Promise<void> {
         await this.#startTurn(game, round)
     }

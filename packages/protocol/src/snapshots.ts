@@ -107,3 +107,12 @@ export const roomSnapshotSchema = z.object({
 })
 
 export type RoomSnapshot = z.infer<typeof roomSnapshotSchema>
+
+export const ruleSystemInfoSchema = z.object({
+    name: z.string(),
+    assets: z.object({
+        cardBack: z.string(),
+    }),
+})
+
+export type RuleSystemInfo = z.infer<typeof ruleSystemInfoSchema>

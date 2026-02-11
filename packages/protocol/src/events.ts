@@ -9,6 +9,7 @@ import {
     roomSnapshotSchema,
     roundPlayerSnapshotSchema,
     roundSnapshotSchema,
+    ruleSystemInfoSchema,
 } from "./snapshots"
 
 function eventSchema<Type extends string, Payload>(
@@ -68,7 +69,12 @@ export const gameEventsSchema = z
         // Game events
         eventSchema("gameRoundStarted", gameSnapshotSchema),
         eventSchema("gameFinished", gameSnapshotSchema),
-        eventSchema("initSnapshot", gameSnapshotSchema),
+        eventSchema(
+            "initSnapshot",
+            gameSnapshotSchema.extend({
+                ruleSystem: ruleSystemInfoSchema,
+            }),
+        ),
     ])
     .meta({ title: "GameEvent" })
 
