@@ -72,7 +72,9 @@ export class Game {
     }
 
     async startRound() {
-        const round = new Round(this)
+        const firstPlayer = this.#determineFirstPlayer()
+
+        const round = new Round(this, firstPlayer)
         this.#rounds.push(round)
 
         this.#events.emit({
@@ -92,6 +94,21 @@ export class Game {
         }
 
         await this.startRound()
+    }
+
+    #determineFirstPlayer() {
+        const lastRound = this.#rounds.at(-1)
+        if (!lastRound) {
+            return this.#players[
+                Math.floor(Math.random() * this.#players.length)
+            ]!
+        }
+
+        const lastPlayerIndex = this.#players.findIndex(
+            (player) => player.id === lastRound.currentPlayer.player.id,
+        )
+
+        return this.#players[(lastPlayerIndex + 1) % this.#players.length]!
     }
 
     #calculateRoundSummary(): GameSummary {

@@ -1,5 +1,5 @@
 import { FlopCard } from "@flop-7/protocol/cards"
-import { RoundSnapshot } from "@flop-7/protocol/snapshots"
+import { GamePlayer, RoundSnapshot } from "@flop-7/protocol/snapshots"
 
 import { Game } from "./game"
 import { GameEvents } from "./game-events"
@@ -16,14 +16,17 @@ export class Round {
     #currentPlayer: RoundPlayer
     #flopThreePlayerQueue: RoundPlayer[] = []
 
-    constructor(game: Game) {
+    constructor(game: Game, firstPlayer: GamePlayer) {
         this.#events = game.events
 
         this.#players = game.players.map(
             (player) => new RoundPlayer(game, player),
         )
         // TODO ew
-        this.#currentPlayer = this.#players[0]!
+        this.#currentPlayer =
+            this.#players.find(
+                (player) => player.player.id === firstPlayer.id,
+            ) ?? this.#players[0]!
     }
 
     get players() {
