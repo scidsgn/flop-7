@@ -8,6 +8,9 @@ import { useControllingPlayerId } from "./player-context.ts"
 
 export const BoardDeck = () => {
     const serverUrl = useGame((state) => state.serverUrl)
+    const cardBack = useGame(
+        (state) => state.game?.ruleSystem?.assets?.cardBack,
+    )
     const currentDeckCard = useGame((state) => state.game?.currentDeckCard)
     const controllingPlayerId = useControllingPlayerId()
 
@@ -51,7 +54,7 @@ export const BoardDeck = () => {
         <div className="pointer-events-auto flex scale-150 gap-2">
             <button
                 className={twMerge(
-                    "rounded-sm",
+                    "h-24 w-16 rounded-sm",
                     hitRequest?.choices?.includes("hit")
                         ? "cursor-pointer ring-4 ring-amber-300"
                         : "cursor-not-allowed",
@@ -59,11 +62,13 @@ export const BoardDeck = () => {
                 disabled={!hitRequest}
                 onClick={() => respond("hit")}
             >
-                <img
-                    className="h-24 w-16"
-                    src="/cards/flop-7/back.svg"
-                    alt="Grab a card"
-                />
+                {serverUrl && cardBack && (
+                    <img
+                        className="h-24 w-16"
+                        src={`${serverUrl}/assets${cardBack}`}
+                        alt="Grab a card"
+                    />
+                )}
             </button>
 
             {currentDeckCard ? (

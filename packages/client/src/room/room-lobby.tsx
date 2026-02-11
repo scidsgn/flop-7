@@ -60,7 +60,7 @@ export const RoomLobby = () => {
             <div className="flex flex-wrap justify-center gap-2">
                 <img
                     className="h-48 w-32"
-                    src="/cards/flop-7/back.svg"
+                    src="/packages/server/assets/flop-7/back.svg"
                     alt="Flop 7 card reverse"
                 />
 

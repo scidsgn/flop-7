@@ -6,6 +6,7 @@ import type {
     GameSummary,
     PlayerRequest,
     RoundSnapshot,
+    RuleSystemInfo,
 } from "@flop-7/protocol/snapshots"
 import { create } from "zustand"
 
@@ -19,6 +20,7 @@ type GameState = {
     currentPlayer: GamePlayer | null
 
     game: {
+        ruleSystem: RuleSystemInfo
         players: GamePlayer[]
         unfulfilledRequests: PlayerRequest[]
         rounds: RoundSnapshot[]
