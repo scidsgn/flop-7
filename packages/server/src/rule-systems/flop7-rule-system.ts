@@ -3,13 +3,15 @@ import { FlopCard, FlopCardOfType } from "@flop-7/protocol/cards"
 import { delay } from "../delay"
 import { Game } from "../game"
 import { Round } from "../round"
-import { RuleSystem } from "../rule-system"
+import { RuleSystem } from "./rule-system"
 
 export class Flop7RuleSystem implements RuleSystem {
     get info() {
         return {
             id: "flop7",
             name: "Flop 7",
+            description:
+                "A vanilla interpretation of the original Flip 7 game.",
             assets: {
                 cardBack: "/flop-7/back.svg",
             },

@@ -8,7 +8,7 @@ import { Deck } from "./deck"
 import { GameEvents } from "./game-events"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
 import { Round } from "./round"
-import { RuleSystem } from "./rule-system"
+import { RuleSystem } from "./rule-systems/rule-system"
 
 export class Game {
     #players: GamePlayer[]

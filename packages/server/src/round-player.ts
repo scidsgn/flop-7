@@ -3,7 +3,7 @@ import { GamePlayer, RoundPlayerSnapshot } from "@flop-7/protocol/snapshots"
 
 import { Game } from "./game"
 import { GameEvents } from "./game-events"
-import { RuleSystem } from "./rule-system"
+import { RuleSystem } from "./rule-systems/rule-system"
 
 type RoundPlayerState = RoundPlayerSnapshot["state"]
 

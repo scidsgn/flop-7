@@ -3,6 +3,7 @@ import z from "zod"
 export const ruleSystemInfoSchema = z.object({
     id: z.string(),
     name: z.string(),
+    description: z.string(),
     assets: z.object({
         cardBack: z.string(),
     }),

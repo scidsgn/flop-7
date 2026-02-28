@@ -5,8 +5,7 @@ import { Emitter } from "@scidsgn/std"
 import { Game } from "./game"
 import { GameEvents } from "./game-events"
 import { ServerPlayerRequests } from "./player-requests/server-player-requests"
-import { RuleSystem } from "./rule-system"
-
+import { RuleSystem } from "./rule-systems/rule-system"
 
 type RoomPlayer = {
     id: string

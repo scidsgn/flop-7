@@ -69,6 +69,7 @@ export const RoomLobbyGameSetup = () => {
                     onClick={startGame}
                 >
                     Start game
+                    {selectedRuleSystem && ` of ${selectedRuleSystem.name}`}
                 </Button>
             </div>
 
@@ -94,11 +95,11 @@ export const RoomLobbyGameSetup = () => {
 
             {selectedRuleSystem && (
                 <div>
-                    <span className="text-xl font-bold text-yellow-500">
+                    <span className="font-bold text-yellow-500">
                         {selectedRuleSystem.name}:{" "}
                     </span>
-                    <span className="font-semibold text-neutral-500">
-                        Insert description here
+                    <span className="font-semibold text-neutral-400">
+                        {selectedRuleSystem.description}
                     </span>
                 </div>
             )}
