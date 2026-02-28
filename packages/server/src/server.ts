@@ -8,8 +8,12 @@ import { z } from "zod"
 
 import { Room } from "./room"
 import { Flop7RuleSystem } from "./rule-systems/flop7-rule-system"
+import { UnspicedFlop7RuleSystem } from "./rule-systems/unspiced-flop7-rule-system"
 
-const availableRuleSystems = [new Flop7RuleSystem()]
+const availableRuleSystems = [
+    new Flop7RuleSystem(),
+    new UnspicedFlop7RuleSystem(),
+]
 
 const room = new Room()
 
