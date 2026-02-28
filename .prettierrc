@@ -15,5 +15,5 @@
         "typescript",
         "jsx"
     ],
-    "tailwindFunctions": ["twMerge"]
+    "tailwindFunctions": ["twMerge", "cva", "cx"]
 }

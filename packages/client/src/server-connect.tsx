@@ -1,44 +1,89 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { z } from "zod"
 
+import { Button } from "./button.tsx"
 import { useGame } from "./game.store.ts"
+import { Panel } from "./panel.tsx"
+import { TextInput } from "./text-input.tsx"
+import { useLocalStorage } from "./use-local-storage.ts"
+
+const urlSchema = z.url()
+const recentUrlsSchema = z.array(urlSchema)
 
 export const ServerConnect = () => {
+    const [recentUrls, setRecentUrls] = useLocalStorage(
+        "flop-7-recent-urls",
+        recentUrlsSchema,
+        [],
+    )
+
     const [url, setUrl] = useState("")
+    const urlIsValid = useMemo(() => urlSchema.safeParse(url).success, [url])
+
     const setServerUrl = useGame((state) => state.setServerUrl)
 
-    const connect = async () => {
+    const connectToUrl = async (url: string) => {
         try {
-            const response = await fetch(`${url.trim()}/info`)
+            const response = await fetch(`${url}/info`)
             if (!response.ok) {
                 alert("Server responded with non-OK response")
                 return
             }
 
-            setServerUrl(url.trim())
+            setServerUrl(url)
+            setRecentUrls(Array.from(new Set([url, ...recentUrls])))
         } catch {
             alert("Could not connect to the server")
         }
     }
 
+    const connect = async () => {
+        const trimmedUrl = url.endsWith("/") ? url.slice(0, -1) : url
+        await connectToUrl(trimmedUrl)
+    }
+
     return (
-        <div className="fixed inset-2 flex flex-col items-center justify-center gap-8 rounded-lg bg-neutral-900">
-            <div className="flex flex-col items-center gap-2 rounded-lg bg-neutral-800 px-4 py-3">
-                <h1 className="text-2xl font-bold">Have a server?</h1>
-                <input
+        <Panel className="grid grid-cols-2 gap-6">
+            <div className="flex flex-col justify-between gap-6">
+                <h1 className="text-4xl font-extrabold">Have a server?</h1>
+
+                <div className="flex flex-col gap-3">
+                    <p className="font-semibold text-neutral-500">
+                        Recently connected servers:
+                    </p>
+                    {Array.from({ length: 3 }).map((_, i) => {
+                        const url = recentUrls[i]
+
+                        return url ? (
+                            <Button
+                                key={i}
+                                className="text-left"
+                                onClick={() => connectToUrl(url)}
+                            >
+                                {url}
+                            </Button>
+                        ) : (
+                            <Button key={i} disabled />
+                        )
+                    })}
+                </div>
+            </div>
+            <div className="flex flex-col gap-3 self-end">
+                <TextInput
                     type="url"
-                    className="rounded-sm bg-neutral-950 px-3 py-2 text-center text-neutral-50"
                     placeholder="Server URL"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                 />
-                <button
-                    className="cursor-pointer rounded-full bg-cyan-800 px-4 py-1 text-lg font-semibold text-cyan-50 hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={url.trim() === ""}
+                <Button
+                    className="self-end"
+                    primary
+                    disabled={!urlIsValid}
                     onClick={connect}
                 >
                     Connect
-                </button>
+                </Button>
             </div>
-        </div>
+        </Panel>
     )
 }

@@ -3,6 +3,7 @@ import { useEffect } from "react"
 
 import { useGame } from "./game.store.ts"
 import { Game } from "./game/game.tsx"
+import { Lightbox } from "./lightbox.tsx"
 import { RoomLobby } from "./room/room-lobby.tsx"
 import { ServerConnect } from "./server-connect.tsx"
 import { TypedEventSource } from "./typed-event-source.ts"
@@ -30,17 +31,14 @@ export const App = () => {
         }
     }, [serverUrl, consumeRoomEvent])
 
-    if (!serverUrl) {
-        return <ServerConnect />
+    if (room?.hasGame) {
+        return <Game />
     }
 
-    if (!room) {
-        return null
-    }
-
-    if (!room.hasGame) {
-        return <RoomLobby />
-    }
-
-    return <Game />
+    return (
+        <Lightbox>
+            {!serverUrl && <ServerConnect />}
+            {room && !room.hasGame && <RoomLobby />}
+        </Lightbox>
+    )
 }

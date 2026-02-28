@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@flop-7/protocol": "workspace:*",
+        "cva": "1.0.0-beta.4",
         "nuqs": "^2.8.8",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
