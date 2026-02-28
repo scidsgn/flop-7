@@ -6,6 +6,7 @@ import { Round } from "../round"
 
 export interface RuleSystem {
     info: RuleSystemInfo
+    deck: FlopCard[]
 
     runRound(game: Game, round: Round): Promise<void>
     calculateScore(cards: FlopCard[]): number

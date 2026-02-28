@@ -32,7 +32,7 @@ export class Game {
         this.#events = gameEvents
         this.#ruleSystem = flow
 
-        this.#deck = new Deck(this.#events)
+        this.#deck = new Deck(this.#events, flow.deck)
 
         this.startRound()
     }

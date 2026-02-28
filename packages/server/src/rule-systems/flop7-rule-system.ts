@@ -5,18 +5,61 @@ import { Game } from "../game"
 import { Round } from "../round"
 import { RuleSystem } from "./rule-system"
 
-export class Flop7RuleSystem implements RuleSystem {
-    get info() {
-        return {
-            id: "flop7",
-            name: "Flop 7",
-            description:
-                "A vanilla interpretation of the original Flip 7 game.",
-            assets: {
-                cardBack: "/flop-7/back.svg",
-            },
-        }
+const flop7Deck: FlopCard[] = []
+
+flop7Deck.push({
+    type: "number",
+    value: 0,
+    asset: `/flop-7/number0.svg`,
+})
+for (let i = 1; i <= 12; i++) {
+    for (let j = 0; j < i; j++) {
+        flop7Deck.push({
+            type: "number",
+            value: i as FlopCardOfType<"number">["value"],
+            asset: `/flop-7/number${i}.svg`,
+        })
     }
+}
+
+for (let i = 1; i <= 3; i++) {
+    flop7Deck.push({ type: "freeze", asset: "/flop-7/freeze.svg" })
+    flop7Deck.push({ type: "flopThree", asset: "/flop-7/flop3.svg" })
+    flop7Deck.push({
+        type: "secondChance",
+        asset: "/flop-7/secondChance.svg",
+    })
+}
+
+flop7Deck.push({
+    type: "addModifier",
+    add: 2,
+    asset: "/flop-7/add2.svg",
+})
+flop7Deck.push({ type: "addModifier", add: 4, asset: "/flop-7/add4.svg" })
+flop7Deck.push({ type: "addModifier", add: 6, asset: "/flop-7/add6.svg" })
+flop7Deck.push({ type: "addModifier", add: 8, asset: "/flop-7/add8.svg" })
+flop7Deck.push({
+    type: "addModifier",
+    add: 10,
+    asset: "/flop-7/add10.svg",
+})
+flop7Deck.push({
+    type: "multiplyModifier",
+    multiplier: 2,
+    asset: "/flop-7/multiply2.svg",
+})
+
+export class Flop7RuleSystem implements RuleSystem {
+    info = {
+        id: "flop7",
+        name: "Flop 7",
+        description: "A vanilla interpretation of the original Flip 7 game.",
+        assets: {
+            cardBack: "/flop-7/back.svg",
+        },
+    }
+    deck = flop7Deck
 
     async runRound(game: Game, round: Round): Promise<void> {
         await this.#startTurn(game, round)
