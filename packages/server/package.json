@@ -10,8 +10,9 @@
         "@elysiajs/cors": "^1.4.1",
         "@elysiajs/node": "^1.4.3",
         "@flop-7/protocol": "workspace:*",
-        "@scidsgn/std": "^0.1.0",
         "elysia": "^1.4.22",
+        "rxjs": "^7.8.2",
+        "rxjs-for-await": "^1.0.0",
         "tsx": "^4.21.0"
     }
 }

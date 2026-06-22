@@ -1,6 +1,7 @@
 import { RoomEvent } from "@flop-7/protocol/events"
 import { RoomSnapshot } from "@flop-7/protocol/snapshots"
-import { Emitter } from "@scidsgn/std"
+import { Subject } from "rxjs"
+import { eachValueFrom } from "rxjs-for-await"
 
 import { Game } from "./game"
 import { GameEvents } from "./game-events"
@@ -14,13 +15,13 @@ type RoomPlayer = {
 }
 
 export class Room {
-    #emitter = new Emitter<RoomEvent>()
+    #subject = new Subject<RoomEvent>()
 
     #players: RoomPlayer[] = []
     #game: Game | null = null
 
     get eventStream() {
-        return this.#emitter.asyncStream()
+        return eachValueFrom(this.#subject)
     }
 
     get isOpen() {
@@ -50,7 +51,7 @@ export class Room {
         }
         this.#players.push(player)
 
-        this.#emitter.emit({
+        this.#subject.next({
             type: "playerJoined",
             payload: { id: player.id, name },
         })
@@ -78,7 +79,7 @@ export class Room {
 
         this.#game = game
 
-        this.#emitter.emit({
+        this.#subject.next({
             type: "gameStarted",
             payload: game.snapshot,
         })
@@ -89,7 +90,7 @@ export class Room {
             return
         }
 
-        this.#emitter.emit({
+        this.#subject.next({
             type: "gameEnded",
             payload: this.#game.snapshot,
         })

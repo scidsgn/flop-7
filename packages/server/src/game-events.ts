@@ -1,17 +1,18 @@
 import { gameEventsSchema } from "@flop-7/protocol/events"
-import { Emitter } from "@scidsgn/std"
+import { Subject } from "rxjs"
+import { eachValueFrom } from "rxjs-for-await"
 import { z } from "zod"
 
 type GameEvent = z.infer<typeof gameEventsSchema>
 
 export class GameEvents {
-    #emitter = new Emitter<GameEvent>()
+    #subject = new Subject<GameEvent>()
 
     get asyncStream() {
-        return this.#emitter.asyncStream()
+        return eachValueFrom(this.#subject)
     }
 
     emit(event: GameEvent) {
-        this.#emitter.emit(event)
+        this.#subject.next(event)
     }
 }

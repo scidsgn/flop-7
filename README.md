@@ -1,6 +1,8 @@
 # Flop 7
 
-Spaghetti code that started on a Christmas Eve Eve evening to figure out the general logic of a Flip 7 round.
+A re-implementation of the game Flip 7, featuring custom rules.
+
+![Screenshot](screenshot.png)
 
 ## License
 
